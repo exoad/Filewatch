@@ -10,24 +10,27 @@
 <br/>
 
 <p align="center">
-Have you ever downloaded an image only to find it's in <code>.webp</code> or some obscure format?<br/>
-Then you end up reuploading it to some conversion website — and redownloading it all over again?<br/>
-<b>FileWatch</b> solves that problem without any of that hassle.
+Have you ever downloaded an image only to find it's in <code>.webp</code> or another obscure format?<br/>
+Then you're stuck reuploading it to a conversion website — and redownloading it again?<br/>
+<b>FileWatch</b> eliminates that hassle by automating the process entirely.
 </p>
 
 </div>
 
-## How?
+---
 
-FileWatch watches for specified folders, such as your downloads folder or another accessible folder, and when events like a file is created is triggered, it
-looks if there is a rule that can match. If there is, it will run the specified action, such as converting that file, deleting it, and much more.
+## How It Works
 
-Everything stays on your computer and only you get to decide what to watch and gets ran.
+FileWatch monitors specified folders — such as your Downloads folder — for real-time file system events. When a new file is added, renamed, or modified, it checks against your defined rules.  If a match is found, FileWatch automatically performs the corresponding action, such as converting the file, moving it, renaming it, or deleting it.
 
-## Chores
+All processing happens locally on your machine. You control what gets watched and what actions are triggered — nothing leaves your system.
 
-Here are some things that are planned for the future
+---
 
-- [ ] Lua scripting to allow for custom conditions to be met as well as specifying jobs without having to use a GUI medium to create them.
-- [ ] Parallellism for running jobs in parallel without blocking and to also reduce job runtime.
-- [ ] More thorough error catching and showing them to the user when certain fields are not met for `VisualBuilder`s
+## Roadmap
+
+Planned features and improvements:
+
+- [ ] **Lua scripting support** — Define custom conditions and job logic without relying solely on a GUI.
+- [ ] **Parallel job execution** — Improve performance by running multiple jobs concurrently.
+- [ ] **Improved error handling** — Better diagnostics and user feedback when rule definitions are incomplete or invalid, especially within `VisualBuilder`s.
