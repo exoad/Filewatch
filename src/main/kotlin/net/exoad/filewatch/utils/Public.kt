@@ -17,4 +17,9 @@ object Theme
     const val ERROR_COLOR = 0x993737
     const val NULL_COLOR = 0xff00ff
     const val WARN_COLOR = 0x6e5512
+
+    // html color codes for use within swing html components
+    const val HTML_RED = "#E25D5D"
+    const val HTML_BLUE = "#618AD6"
+    const val HTML_YELLOW = "#D6A561"
 }

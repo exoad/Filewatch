@@ -74,6 +74,10 @@ annotation class VisualDouble(
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class VisualBool(val name: String, val defaultValue: Boolean, val hint: String = "")
+//
+//@Target(AnnotationTarget.VALUE_PARAMETER)
+//@Retention(AnnotationRetention.RUNTIME)
+//annotation class VisualKey(val value: String)
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
@@ -81,5 +85,13 @@ annotation class VisualPath(
     val name: String,
     val defaultValue: String,
     val hint: String = "",
-) // default value is also used as
-// the start location for launching the file explorer
+    val type: Int = Type.BOTH
+)
+{
+    object Type
+    {
+        const val DIRECTORIES = 1
+        const val FILES = 2
+        const val BOTH = 3
+    }
+}

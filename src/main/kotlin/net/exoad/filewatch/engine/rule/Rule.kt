@@ -1,4 +1,4 @@
-package net.exoad.filewatch.engine.automation.rule
+package net.exoad.filewatch.engine.rule
 
 import net.exoad.filewatch.ui.visualbuilder.VisualClass
 import net.exoad.filewatch.ui.visualbuilder.VisualMultiObject

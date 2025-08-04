@@ -1,14 +1,13 @@
-package net.exoad.filewatch.engine.automation.actions
+package net.exoad.filewatch.engine.actions
 
-import net.exoad.filewatch.engine.automation.FileAction
-import net.exoad.filewatch.engine.automation.rule.Action
+import net.exoad.filewatch.engine.FileAction
+import net.exoad.filewatch.engine.rule.Action
 import net.exoad.filewatch.utils.FileSanityUtils
 import net.exoad.filewatch.utils.Logger
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-
 
 class MoveAction(private val moveFileAction: Action.Move) : FileAction
 {
@@ -22,7 +21,7 @@ class MoveAction(private val moveFileAction: Action.Move) : FileAction
         val targetDirectoryPath: Path
         try
         {
-            targetDirectoryPath = FileSanityUtils.ensureIsSaneDirectory(moveFileAction.targetDirectory)
+            targetDirectoryPath = FileSanityUtils.ensureIsSaneDirectory(moveFileAction.outputDirectory)
         }
         catch(_: IOException)
         {

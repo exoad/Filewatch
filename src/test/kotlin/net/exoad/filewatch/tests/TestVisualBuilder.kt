@@ -1,10 +1,11 @@
 package net.exoad.filewatch.tests
 
-import net.exoad.filewatch.engine.automation.rule.Action
-import net.exoad.filewatch.engine.automation.rule.Condition
+import net.exoad.filewatch.engine.rule.Action
+import net.exoad.filewatch.engine.rule.Condition
 import net.exoad.filewatch.ui.visualbuilder.VisualBool
 import net.exoad.filewatch.ui.visualbuilder.VisualBuilder
 import net.exoad.filewatch.ui.visualbuilder.VisualClass
+import net.exoad.filewatch.ui.visualbuilder.VisualObject
 import net.exoad.filewatch.ui.visualbuilder.VisualPath
 import net.exoad.filewatch.ui.visualbuilder.VisualString
 import org.junit.jupiter.api.assertDoesNotThrow
@@ -14,6 +15,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
+// !! EPILEPSY WARNING !!
 class TestVisualBuilder
 {
     @Test
@@ -43,6 +45,27 @@ class TestVisualBuilder
         @VisualClass("Test2-Class", "")
         class Test2_1(val invalidParameter: String, @param:VisualBool("OkBool", true) val okBool: Boolean)
         assertFalse { VisualBuilder.isBuildable(Test2_1::class) }
+    }
+
+    @Test
+    fun test3()
+    {
+        @VisualClass("Level3", "")
+        class C()
+
+        @VisualClass("Level2", "")
+        class B(@param:VisualObject("", "", "") val c: C)
+
+        @VisualClass("Level1", "")
+        class A(@param:VisualObject("", "", "") val b: B)
+
+        @VisualClass("Level0", "")
+        class Test3_1(@param:VisualObject("", "", "") val a: A)
+
+        assertTrue { VisualBuilder.isBuildable(Test3_1::class) }
+        assertDoesNotThrow {
+            VisualBuilder.build(Test3_1::class).also { it.showNow(); it.dispose() }
+        }
     }
 
     @Test
@@ -83,6 +106,7 @@ class TestVisualBuilder
         assertTrue { VisualBuilder.isBuildable(Condition.FileNameContains::class) }
         assertTrue { VisualBuilder.isBuildable(Condition.FileSizeLessThan::class) }
         assertTrue { VisualBuilder.isBuildable(Condition.FileSizeGreaterThan::class) }
+        assertTrue { VisualBuilder.isBuildable(Condition.FileNameEndsWith::class) }
     }
 
     @Test
@@ -98,6 +122,9 @@ class TestVisualBuilder
         }
         assertDoesNotThrow {
             VisualBuilder.build(Condition.FileSizeGreaterThan::class).also { it.showNow(); it.dispose() }
+        }
+        assertDoesNotThrow {
+            VisualBuilder.build(Condition.FileNameEndsWith::class).also { it.showNow(); it.dispose() }
         }
     }
 

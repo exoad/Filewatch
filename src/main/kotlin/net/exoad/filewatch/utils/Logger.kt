@@ -1,5 +1,6 @@
 package net.exoad.filewatch.utils
 
+import net.exoad.filewatch.Filewatch
 import java.util.logging.ConsoleHandler
 import java.util.logging.Level
 import java.util.logging.LogRecord
@@ -17,13 +18,20 @@ object Logger
             "java.util.logging.SimpleFormatter.format",
             $$"%1$tH:%1$tM:%1$tS [%4$-7s]: %5$s%6$s%n"
         )
-        I.level = Level.INFO
-        I.addHandler(object : ConsoleHandler()
+        if(Filewatch.isDevBuild)
         {
-            override fun publish(record: LogRecord?)
+            I.level = Level.INFO
+            I.addHandler(object : ConsoleHandler()
             {
-                loggerListener?.invoke(record)
-            }
-        })
+                override fun publish(record: LogRecord?)
+                {
+                    loggerListener?.invoke(record)
+                }
+            })
+        }
+        else
+        {
+            I.level = Level.OFF
+        }
     }
 }

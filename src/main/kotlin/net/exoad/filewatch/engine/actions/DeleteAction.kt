@@ -1,6 +1,6 @@
-package net.exoad.filewatch.engine.automation.actions
+package net.exoad.filewatch.engine.actions
 
-import net.exoad.filewatch.engine.automation.FileAction
+import net.exoad.filewatch.engine.FileAction
 import net.exoad.filewatch.utils.Logger
 import java.io.IOException
 import java.nio.file.Files

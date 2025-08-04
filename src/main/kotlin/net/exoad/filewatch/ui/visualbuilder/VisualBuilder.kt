@@ -248,14 +248,24 @@ class VisualBuilder<T : Any>(
                 addParameterData("Path", index, field.defaultValue)
                 return {
                     +col {
-                        +label("<html><b>${field.name}</b></html>")
+                        +label(
+                            html {
+                                b {
+                                    text(field.name)
+                                }
+                            }
+                        )
                         +hint(field.hint)
                     }
                     +col {
                         val selectedPath = remember(field.defaultValue)
-                        +label(selectedPath(), fontSize = 12F, modifier = Modifier().apply {
-                            alignmentX = Alignment.RIGHT
-                        }).also { label ->
+                        +label(
+                            selectedPath(),
+                            fontSize = 12F,
+                            modifier = Modifier().apply {
+                                alignmentX = Alignment.RIGHT
+                            }
+                        ).also { label ->
                             selectedPath.observe {
                                 label.text = it.truncate(42)
                                 label.toolTipText = it
@@ -273,7 +283,12 @@ class VisualBuilder<T : Any>(
                             val picker = filePicker(
                                 allowMultiple = false,
                                 modifier = Modifier().apply { size = dim(740, 540) },
-                                mode = FilePickerMode.DIRECTORIES
+                                mode = when(field.type)
+                                {
+                                    VisualPath.Type.FILES -> FilePickerMode.DIRECTORIES
+                                    VisualPath.Type.DIRECTORIES -> FilePickerMode.DIRECTORIES
+                                    else -> FilePickerMode.BOTH
+                                }
                             ).also {
                                 it.showDialog(
                                     this@VisualBuilder,
@@ -315,7 +330,10 @@ class VisualBuilder<T : Any>(
                         +label("<html><b>${field.name}</b></html>")
                         +hint(field.hint)
                     }
-                    +spinner(initialValue = field.defaultValue, discreteValues = field.discreteValues.toTypedArray()) {
+                    +spinner(
+                        initialValue = field.defaultValue,
+                        discreteValues = field.discreteValues.toTypedArray()
+                    ) {
                         addParameterData("DiscreteLong", index, it)
                     }
                 }
@@ -445,7 +463,7 @@ class VisualBuilder<T : Any>(
                 param.annotations.any {
                     if(it is VisualObject)
                     {
-                        return isBuildable(it::class)
+                        return isBuildable(param.type.classifier as KClass<*>)
                     }
                     if(it is VisualMultiObject)
                     {

@@ -1,7 +1,9 @@
 package net.exoad.filewatch.ui.app
 
-import net.exoad.filewatch.engine.automation.FileSystemMonitor
-import net.exoad.filewatch.engine.automation.WatchFolderRequest
+import net.exoad.filewatch.engine.AutomationController
+import net.exoad.filewatch.engine.FileSystemMonitor
+import net.exoad.filewatch.engine.Job
+import net.exoad.filewatch.engine.WatchFolderRequest
 import net.exoad.filewatch.ui.*
 import net.exoad.filewatch.ui.visualbuilder.VisualBuilder
 import net.exoad.filewatch.utils.Logger
@@ -10,7 +12,6 @@ import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import javax.swing.WindowConstants
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 
 object AppHome
 {
@@ -25,12 +26,11 @@ object AppHome
                 +row(spacing = 2) {
                     +button(
                         "Watch Folder",
-                        modifier = Modifier().apply { },
                         icon = svg("icons/eye.svg")
                     ) {
-                        VisualBuilder.build(WatchFolderRequest::class).apply {
+                        VisualBuilder.build(Job::class).apply {
                             onBuild = { obj ->
-                                FileSystemMonitor.watch(Path(obj.path))
+                                AutomationController.registerJob(obj)
                                 watchListListener()
                             }
                         }.showNow()
@@ -72,25 +72,9 @@ object AppHome
                     dividerPosition = (this@apply.size.height * 0.6).toInt(),
                     first = {
                         +splitPane(
-                            dividerPosition = (this@apply.size.width * 0.65).toInt(),
+                            dividerPosition = (this@apply.size.width * 0.69 /*nice*/).toInt(),
                             first = {
-                                +scrollPane {
-                                    +listBuilder(
-                                        listModel<String>(
-                                            size = { FileSystemMonitor.foldersWatchingCount },
-                                            elementAt = { FileSystemMonitor.foldersWatching[it].absolutePathString() },
-                                        )
-                                    ).apply {
-                                        watchListListener.observe {
-                                            Logger.I.info("Refresh Folder Watch List Modal")
-                                            (model as ReferenceListModel<String>).notifyChanges(
-                                                model,
-                                                0,
-                                                model.size - 1
-                                            )
-                                        }
-                                    }
-                                }
+                                +JobsView.component
                             },
                             second = {
                                 +button("Actions")

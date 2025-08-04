@@ -1,4 +1,4 @@
-package net.exoad.filewatch.engine.automation
+package net.exoad.filewatch.engine
 
 import net.exoad.filewatch.ui.visualbuilder.VisualClass
 import net.exoad.filewatch.ui.visualbuilder.VisualPath
@@ -30,18 +30,18 @@ object FileSystemMonitor
      * Global listener used for watching when new folders are scheduled to be watched. Use normal listeners to listen
      * for individual folders.
      */
-    private var globalListener: ((path: Path) -> Unit)? = null
+    private var globalListener = mutableListOf<((path: Path) -> Unit)>()
 
     fun attachGlobalListener(listener: (path: Path) -> Unit)
     {
-        globalListener = listener
-        Logger.I.info("FolderWatchdog has attached global listener")
+        globalListener.add(listener)
+        Logger.I.info("FolderWatchdog attached a global listener: ${listener.hashCode()}")
     }
 
-    fun detachGlobalListener()
+    fun detachGlobalListeners()
     {
-        globalListener = null
-        Logger.I.info("FolderWatchdog has detached global listener")
+        globalListener.clear()
+        Logger.I.info("FolderWatchdog has detached all global listeners")
     }
 
     private var executor = Executors.newSingleThreadExecutor()
@@ -117,7 +117,7 @@ object FileSystemMonitor
     {
         require(path.isDirectory())
         keys[path.register(service, StandardWatchEventKinds.ENTRY_CREATE)] = path
-        globalListener?.invoke(path)
+        globalListener.forEach { it(path) }
         Logger.I.info("FolderWatchdog WATCHING $path")
     }
 

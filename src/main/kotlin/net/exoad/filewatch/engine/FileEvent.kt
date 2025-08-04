@@ -1,4 +1,4 @@
-package net.exoad.filewatch.engine.automation
+package net.exoad.filewatch.engine
 
 import java.nio.file.Path
 

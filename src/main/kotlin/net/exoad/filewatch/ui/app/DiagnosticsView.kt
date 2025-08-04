@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import javax.swing.BorderFactory
 
 const val DIAGNOSTICS_PUMP_LOG_CAP = 16384 // make sure we dont take up too much memory automatically
-private val DIAGNOSTICS_MESSAGE_PUMP_TIME_FORMAT = DateTimeFormatter.ofPattern("MM/dd/yy HH:mm:ss")
+val DEFAULT_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yy HH:mm:ss")
 
 fun pump(message: Any?)
 {
@@ -22,7 +22,7 @@ fun pump(message: Any?)
     {
         pumpArray.addLast(
             "[${
-                DIAGNOSTICS_MESSAGE_PUMP_TIME_FORMAT.format(LocalDateTime.now())
+                DEFAULT_TIMESTAMP_FORMATTER.format(LocalDateTime.now())
             }]:&nbsp;&nbsp;$message"
         )
         (DiagnosticsView.component.model as ReferenceListModel<String>).notifyAdded(

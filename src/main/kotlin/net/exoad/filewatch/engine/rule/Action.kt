@@ -1,10 +1,10 @@
-package net.exoad.filewatch.engine.automation.rule
+package net.exoad.filewatch.engine.rule
 
-import net.exoad.filewatch.engine.automation.FileAction
+import net.exoad.filewatch.engine.FileAction
 import kotlinx.serialization.Serializable
-import net.exoad.filewatch.engine.automation.actions.DeleteAction
-import net.exoad.filewatch.engine.automation.actions.IgnoreAction
-import net.exoad.filewatch.engine.automation.actions.MoveAction
+import net.exoad.filewatch.engine.actions.DeleteAction
+import net.exoad.filewatch.engine.actions.IgnoreAction
+import net.exoad.filewatch.engine.actions.MoveAction
 import net.exoad.filewatch.ui.visualbuilder.VisualBool
 import net.exoad.filewatch.ui.visualbuilder.VisualClass
 import net.exoad.filewatch.ui.visualbuilder.VisualDiscreteString
@@ -23,22 +23,32 @@ sealed class Action
         val targetFormat: String,
         @param:VisualBool("Delete Original", false)
         val deleteOriginal: Boolean = false,
-        @param:VisualPath("Output Folder", ".")
+        @param:VisualPath(
+            "Output Folder",
+            ".",
+            "If empty, the output file will use the same folder",
+            VisualPath.Type.DIRECTORIES
+        )
         val outputDirectory: String = ".",
     ) : Action()
 
     @Serializable
     @VisualClass("Resize Image", "Resize the image to new dimensions.")
     data class ResizeImage(
-        @param:VisualLong("New Width", 0, false)
+        @param:VisualLong("New Width", 0, false, "Specify in pixels")
         val width: Long,
-        @param:VisualLong("New Height", 0, false)
+        @param:VisualLong("New Height", 0, false, "Specify in pixels")
         val height: Long,
-        @param:VisualBool("Keep Aspect Ratio", true)
+        @param:VisualBool("Keep Aspect Ratio", true, "Empty space will be blanked out if not kept.")
         val keepAspectRatio: Boolean = true,
-        @param:VisualBool("Delete Original", false)
+        @param:VisualBool("Delete Original", false, "Remove the original file.")
         val deleteOriginal: Boolean = false,
-        @param:VisualPath("Output Folder", ".")
+        @param:VisualPath(
+            "Output Folder",
+            ".",
+            "If empty, the output file will use the same folder",
+            VisualPath.Type.DIRECTORIES
+        )
         val outputDirectory: String = ".",
     ) : Action()
 
@@ -54,7 +64,7 @@ sealed class Action
         val quality: Double = 85.0,
         @param:VisualBool("Delete Original", false, "Remove the original file.")
         val deleteOriginal: Boolean = false,
-        @param:VisualPath("Output Folder", ".", "Where to place the outputted file.")
+        @param:VisualPath("Output Folder", ".", "Where to place the outputted file.", VisualPath.Type.DIRECTORIES)
         val outputDirectory: String = ".",
     ) : Action()
 
@@ -70,7 +80,7 @@ sealed class Action
         val newNamePattern: String,
         @param:VisualBool("Delete Original", false, "Remove the original file.")
         val deleteOriginal: Boolean = false,
-        @param:VisualPath("Output Folder", ".", "Where to place the outputted file.")
+        @param:VisualPath("Output Folder", ".", "Where to place the outputted file.", VisualPath.Type.DIRECTORIES)
         val outputDirectory: String = ".",
     ) : Action()
 
@@ -78,7 +88,7 @@ sealed class Action
     @VisualClass("Move File", "Move a file to a selected folder.")
     data class Move(
         @param:VisualPath("Output Folder", ".", hint = "A folder to move the file to.")
-        val targetDirectory: String,
+        val outputDirectory: String,
         @param:VisualBool("Overwrite?", false, hint = "If a file with the same name exists. It will be overwritten.")
         val overwrite: Boolean = false,
     ) : Action()

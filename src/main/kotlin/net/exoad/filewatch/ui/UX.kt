@@ -1,12 +1,12 @@
 package net.exoad.filewatch.ui
 
+import net.exoad.filewatch.utils.Observable
 import javax.swing.AbstractListModel
 import javax.swing.Timer
 
-class MutableState<T>(initialValue: T)
+class MutableState<T>(initialValue: T) : Observable<T>()
 {
     private var _value = initialValue
-    private val observers = mutableListOf<(T) -> Unit>()
     var value: T
         get() = _value
         set(newValue)
@@ -14,14 +14,9 @@ class MutableState<T>(initialValue: T)
             if(_value != newValue)
             {
                 _value = newValue
-                observers.forEach { it(newValue) }
+                notifyObservers(newValue)
             }
         }
-
-    fun observe(observer: (T) -> Unit)
-    {
-        observers.add(observer)
-    }
 
     operator fun invoke(): T
     {
@@ -64,9 +59,8 @@ fun listen(): Notifier
     return Notifier()
 }
 
-class PeriodicState<T>(initialValue: T, period: Int, producer: () -> T)
+class PeriodicState<T>(initialValue: T, period: Int, producer: () -> T) : Observable<T>()
 {
-    private val observers = mutableListOf<(T) -> Unit>()
     private val timer: Timer
     private var _value = initialValue
     private var value: T
@@ -76,7 +70,7 @@ class PeriodicState<T>(initialValue: T, period: Int, producer: () -> T)
             if(_value != newValue)
             {
                 _value = newValue
-                observers.forEach { it(newValue) }
+                notifyObservers(newValue)
             }
         }
 
@@ -101,11 +95,6 @@ class PeriodicState<T>(initialValue: T, period: Int, producer: () -> T)
         {
             timer.stop()
         }
-    }
-
-    fun observe(observer: (T) -> Unit)
-    {
-        observers.add(observer)
     }
 }
 
