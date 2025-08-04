@@ -1,22 +1,17 @@
 package net.exoad.filewatch.ui.app
 
 import net.exoad.filewatch.engine.AutomationController
-import net.exoad.filewatch.engine.FileSystemMonitor
 import net.exoad.filewatch.engine.Job
-import net.exoad.filewatch.engine.WatchFolderRequest
 import net.exoad.filewatch.ui.*
 import net.exoad.filewatch.ui.visualbuilder.VisualBuilder
-import net.exoad.filewatch.utils.Logger
 import net.exoad.filewatch.utils.Theme
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import javax.swing.WindowConstants
-import kotlin.io.path.Path
 
 object AppHome
 {
     val frame = frame("Filewatch").apply {
-        val watchListListener = listen()
         pack()
         size = dim(850, 600)
         preferredSize = size
@@ -31,7 +26,6 @@ object AppHome
                         VisualBuilder.build(Job::class).apply {
                             onBuild = { obj ->
                                 AutomationController.registerJob(obj)
-                                watchListListener()
                             }
                         }.showNow()
                     }

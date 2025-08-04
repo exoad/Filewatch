@@ -3,51 +3,90 @@ package net.exoad.filewatch.ui.app
 import net.exoad.filewatch.engine.ErrorContext
 import net.exoad.filewatch.ui.*
 import net.exoad.filewatch.utils.Logger
+import net.exoad.filewatch.utils.stringifyTrace
 import java.awt.datatransfer.StringSelection
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import javax.swing.BorderFactory
 import javax.swing.JDialog
 import kotlin.system.exitProcess
 
 fun launchErrorDialog(context: ErrorContext)
 {
     val copyProducer = context.copyTextProducer ?: {
-        "${context.title}\n${context.description}\n${if(context.cause != null) "---\n${context.cause}" else ""}"
+        "${context.title}\n${context.description}\n${if(context.cause != null) "---\n${context.cause.stringifyTrace()}" else ""}"
     }
     JDialog().apply {
         title = "Error: ${context.title}"
         isAlwaysOnTop = true
-        size = dim(400, 180)
+        size = dim(550, 310)
         preferredSize = size
         contentPane = scaffold(
             center = {
-                +col(Modifier().apply { padding = padSym(h = 16, v = 4) }) {
-                    +row {
-                        +icon(svg("icons/mood_bad.svg", 32, 32))
-                        +panel(Modifier().apply { size = dim(6, 1) })
-                        +label(
-                            html {
-                                b("font-size" to 26) {
-                                    text(context.title)
-                                }
-                                br()
-                                em("font-size" to 14) {
-                                    text(
-                                        DEFAULT_TIMESTAMP_FORMATTER.format(
-                                            LocalDateTime.ofInstant(
-                                                Instant.ofEpochMilli(context.timestamp),
-                                                ZoneId.systemDefault()
+                +scrollPane(Modifier().apply { padding = padSym(h = 16, v = 4) }) {
+                    +scaffold(
+                        north = {
+                            +row {
+                                +icon(svg("icons/mood_bad.svg", 46, 46))
+                                +panel(Modifier().apply { size = dim(6, 1) })
+                                +label(
+                                    html {
+                                        b("font-size" to 26) {
+                                            text(context.title)
+                                        }
+                                        br()
+                                        span("font-size" to 12) {
+                                            text(
+                                                DEFAULT_TIMESTAMP_FORMATTER.format(
+                                                    LocalDateTime.ofInstant(
+                                                        Instant.ofEpochMilli(context.timestamp),
+                                                        ZoneId.systemDefault()
+                                                    )
+                                                )
                                             )
-                                        )
+                                        }
+                                    }
+                                )
+                            }
+                        },
+                        center = {
+                            +col(Modifier().apply { padding = padSym(v = 8) }) {
+                                +row {
+                                    +label(
+                                        html {
+                                            span("font-size" to 14) {
+                                                text(context.description)
+                                            }
+                                        },
+                                        modifier = Modifier().apply { size = dim(450, 140) }
                                     )
                                 }
+                                if(context.cause != null)
+                                {
+                                    +row(Modifier().apply { border = BorderFactory.createTitledBorder("Details") }) {
+                                        +label(
+                                            html {
+                                                text(
+                                                    context.cause.stringifyTrace()
+                                                        .replace("\n", "<br/>")
+                                                        .replace("\t", "&emsp;")
+                                                )
+                                            },
+                                            fontSize = 12F,
+                                            modifier = Modifier().apply {
+                                                padding = padSym(h = 4, v = 2)
+                                                alignmentX = Alignment.LEFT
+                                            }
+                                        )
+                                    }
+                                }
+                                +vSpacer()
                             }
-                        )
-                    }
-                    +vSpacer()
+                        }
+                    )
                 }
             },
             south = {

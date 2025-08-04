@@ -366,6 +366,36 @@ fun iconButton(
     }
 }
 
+fun textPane(
+    initialText: String = "",
+    modifier: Modifier? = null,
+    type: String = "text/html",
+    editable: Boolean = true,
+): JTextPane
+{
+    return JTextPane().apply {
+        text = initialText
+        this.contentType = type
+        isEditable = editable
+        applyModifier(modifier)
+    }
+}
+
+fun editorPane(
+    initialText: String = "",
+    modifier: Modifier? = null,
+    contentType: String = "text/html",
+    editable: Boolean = true,
+): JEditorPane
+{
+    return JEditorPane().apply {
+        text = initialText
+        this.contentType = contentType
+        isEditable = editable
+        applyModifier(modifier)
+    }
+}
+
 fun textArea(
     initialText: String = "",
     rows: Int = 5,
