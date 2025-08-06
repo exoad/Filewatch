@@ -1,4 +1,4 @@
-package net.exoad.filewatch.ui.app
+package net.exoad.filewatch.app.components
 
 import net.exoad.filewatch.engine.AutomationController
 import net.exoad.filewatch.engine.Job
@@ -25,7 +25,16 @@ object AppHome
                     ) {
                         VisualBuilder.build(Job::class).apply {
                             onBuild = { obj ->
-                                AutomationController.registerJob(obj)
+                                AutomationController.registerJob(
+                                    if(obj.canonicalName.isBlank())
+                                    {
+                                        Job(obj.folder, obj.folder)
+                                    }
+                                    else
+                                    {
+                                        obj
+                                    }
+                                )
                             }
                         }.showNow()
                     }

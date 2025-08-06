@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="AppMainKt" type="JetRunConfigurationType" nameIsGenerated="true">
     <envs>
-      <env name="isDevBuild" value="false" />
+      <env name="isDevBuild" value="true" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="net.exoad.filewatch.AppMainKt" />
     <module name="AutoFile.main" />

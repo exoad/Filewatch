@@ -1,4 +1,4 @@
-package net.exoad.filewatch.ui.app
+package net.exoad.filewatch.app.components
 
 import net.exoad.filewatch.engine.ErrorContext
 import net.exoad.filewatch.ui.*
@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.swing.BorderFactory
 import javax.swing.JDialog
+import javax.swing.WindowConstants
 import kotlin.system.exitProcess
 
 fun launchErrorDialog(context: ErrorContext)
@@ -22,7 +23,7 @@ fun launchErrorDialog(context: ErrorContext)
     JDialog().apply {
         title = "Error: ${context.title}"
         isAlwaysOnTop = true
-        size = dim(550, 310)
+        size = dim(550, if(context.cause != null && context.description.length > 80) 400 else 310)
         preferredSize = size
         contentPane = scaffold(
             center = {
@@ -58,7 +59,11 @@ fun launchErrorDialog(context: ErrorContext)
                                     +label(
                                         html {
                                             span("font-size" to 14) {
-                                                text(context.description)
+                                                text(
+                                                    context.description
+                                                        .replace("\n", "<br/>")
+                                                        .replace("\t", "&emsp;")
+                                                )
                                             }
                                         },
                                         modifier = Modifier().apply { size = dim(450, 140) }
@@ -122,5 +127,130 @@ fun launchErrorDialog(context: ErrorContext)
         it.pack()
         it.setLocationRelativeTo(AppHome.frame)
         it.isVisible = true
+        it.requestFocus()
+        it.toFront()
+    }
+}
+
+fun launchConfirmDialog(
+    title: String,
+    description: String,
+    showHideNextTime: Boolean = false,
+    showHideNextTimeListener: (Boolean) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+)
+{
+    JDialog().apply {
+        isAlwaysOnTop = true
+        this.title = title
+        contentPane = scaffold(
+            modifier = Modifier().apply { padding = padOnly(bottom = 8, left = 8, right = 8) },
+            center = {
+                +row {
+                    +icon(svg("icons/help.svg", 36, 36))
+                    +panel(Modifier().apply { size = dim(6, 1) })
+                    +col {
+                        +label(title, fontSize = 20F, bolded = true)
+                        +label(
+                            html {
+                                span("font-size" to 14) {
+                                    stripText(description)
+                                }
+                            },
+                        )
+                    }
+                }
+            },
+            south = {
+                +row(Modifier().apply { padding = padOnly(top = 20) }) {
+                    if(showHideNextTime)
+                    {
+                        +checkbox(false) {
+                            showHideNextTimeListener(it)
+                        }
+                        +label("Don't Show Again", fontSize = 11F)
+                    }
+                    +hSpacer()
+                    +button("Cancel") {
+                        dispose()
+                        onCancel()
+                    }
+                    +button("Confirm") {
+                        dispose()
+                        onConfirm()
+                    }
+                }
+            }
+        )
+        addWindowListener(object : WindowAdapter()
+        {
+            override fun windowClosed(e: WindowEvent?)
+            {
+                AppHome.frame.isEnabled = true
+            }
+        })
+        defaultCloseOperation = WindowConstants.DO_NOTHING_ON_CLOSE
+    }.also {
+        AppHome.frame.isEnabled = false
+        it.pack()
+        it.size = dim(340, it.height + 20)
+        it.preferredSize = it.size
+        it.setLocationRelativeTo(AppHome.frame)
+        it.isVisible = true
+        it.requestFocus()
+        it.toFront()
+    }
+}
+
+fun launchInfoDialog(title: String, description: String)
+{
+    JDialog().apply {
+        isAlwaysOnTop = true
+        this.title = title
+        contentPane = scaffold(
+            modifier = Modifier().apply { padding = padOnly(bottom = 8, left = 8, right = 8) },
+            center = {
+                +row {
+                    +icon(svg("icons/info.svg", 36, 36))
+                    +panel(Modifier().apply { size = dim(6, 1) })
+                    +col {
+                        +label(title, fontSize = 20F)
+                        +label(
+                            html {
+                                span("font-size" to 14) {
+                                    stripText(description)
+                                }
+                            },
+                        )
+                    }
+                }
+            },
+            south = {
+                +row(Modifier().apply { padding = padOnly(top = 20, left = 40) }) {
+                    +hSpacer()
+                    +button("Ok") {
+                        dispose()
+                    }
+                }
+            }
+        )
+        addWindowListener(object : WindowAdapter()
+        {
+            override fun windowClosed(e: WindowEvent?)
+            {
+                AppHome.frame.isEnabled = true
+            }
+        })
+        defaultCloseOperation = WindowConstants.DO_NOTHING_ON_CLOSE
+    }.also {
+        AppHome.frame.isEnabled = false
+        it.pack()
+        it.size = dim(340, it.height + 20)
+        it.preferredSize = it.size
+        it.setLocationRelativeTo(AppHome.frame)
+        it.isVisible = true
+        it.requestFocus()
+        it.toFront()
     }
 }

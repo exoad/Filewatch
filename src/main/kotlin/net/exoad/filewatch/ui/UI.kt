@@ -19,15 +19,20 @@ fun color(rgb: Int): Color
     return Color(rgb)
 }
 
+fun JComponent.repaintLater()
+{
+    repaint(75L)
+}
+
 class UIBuildException(message: String) : RuntimeException(message)
 
-enum class Alignment(val componentValue: Float)
+enum class Alignment(val componentValue: Float, val swingConstant: Int)
 {
-    TOP(TOP_ALIGNMENT),
-    BOTTOM(BOTTOM_ALIGNMENT),
-    CENTER(CENTER_ALIGNMENT),
-    LEFT(LEFT_ALIGNMENT),
-    RIGHT(RIGHT_ALIGNMENT)
+    TOP(TOP_ALIGNMENT, SwingConstants.TOP),
+    BOTTOM(BOTTOM_ALIGNMENT, SwingConstants.BOTTOM),
+    CENTER(CENTER_ALIGNMENT, SwingConstants.CENTER),
+    LEFT(LEFT_ALIGNMENT, SwingConstants.LEFT),
+    RIGHT(RIGHT_ALIGNMENT, SwingConstants.RIGHT)
 }
 
 enum class Axis(val componentValue: Int)
@@ -97,9 +102,11 @@ fun nullPanel(modifier: Modifier? = null, color: Int): JComponent
     }
 }
 
-fun <E> listBuilder(items: ListModel<E>, modifier: Modifier? = null): JList<E>
+fun <E> listBuilder(items: ListModel<E>, modifier: Modifier? = null, cellRenderer: ListCellRenderer<E>? = null):
+        JList<E>
 {
     return JList<E>(items).apply {
+        cellRenderer?.let { this.cellRenderer = it }
         applyModifier(modifier)
     }
 }
@@ -170,7 +177,7 @@ fun colLayout(target: JComponent): BoxLayout
     return BoxLayout(target, BoxLayout.Y_AXIS)
 }
 
-fun svg(path: String, width: Int = 16, height: Int = 16): Icon
+fun svg(path: String, width: Int = 16, height: Int = 16): FlatSVGIcon
 {
     return FlatSVGIcon(path, width, height)
 }

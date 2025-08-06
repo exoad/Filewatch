@@ -22,4 +22,5 @@ object Theme
     const val HTML_RED = "#E25D5D"
     const val HTML_BLUE = "#618AD6"
     const val HTML_YELLOW = "#D6A561"
+    const val HTML_GREEN = "#2CC762"
 }

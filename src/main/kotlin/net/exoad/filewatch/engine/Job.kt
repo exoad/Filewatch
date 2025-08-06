@@ -1,11 +1,16 @@
 package net.exoad.filewatch.engine
 
 import net.exoad.filewatch.engine.rule.Rule
+import net.exoad.filewatch.app.components.DEFAULT_TIMESTAMP_FORMATTER
 import net.exoad.filewatch.ui.visualbuilder.VisualClass
 import net.exoad.filewatch.ui.visualbuilder.VisualPath
 import net.exoad.filewatch.ui.visualbuilder.VisualString
+import net.exoad.filewatch.utils.Chronos
 import net.exoad.filewatch.utils.Observable
 import java.nio.file.Path
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Objects
 import kotlin.io.path.Path
 import kotlin.properties.Delegates
@@ -18,8 +23,8 @@ class Job(
     val folder: String,
 )
 {
-    val creationTime: Long = System.currentTimeMillis()
-    private val rules: MutableList<Rule> = mutableListOf()
+    val creationTime: Long = Chronos.currentMillis()
+    val rules: MutableList<Rule> = mutableListOf()
 
     companion object : Observable<Job>()
     {
@@ -27,10 +32,26 @@ class Job(
         val indexedInstances = mutableMapOf<Int, Job>()
         val hashInstances = mutableMapOf<Int, Job>()
 
-        fun findByIndex(index: Int): Job? = indexedInstances[index]
-        fun findByHash(hash: Int): Job? = hashInstances[hash]
-        fun hasIndex(index: Int): Boolean = indexedInstances.containsKey(index)
-        fun hasHash(hash: Int): Boolean = hashInstances.containsKey(hash)
+        fun findByIndex(index: Int): Job?
+        {
+            return indexedInstances[index]
+        }
+
+        fun findByHash(hash: Int): Job?
+        {
+            return hashInstances[hash]
+        }
+
+        fun hasIndex(index: Int): Boolean
+        {
+            return indexedInstances.containsKey(index)
+        }
+
+        fun hasHash(hash: Int): Boolean
+        {
+            return hashInstances.containsKey(hash)
+        }
+
         fun deleteAll()
         {
             indexedInstances.clear()
@@ -54,5 +75,15 @@ class Job(
     fun attachMonitor(newFileWatcher: (Path) -> Unit)
     {
         FileSystemMonitor.subscribe(Path(folder), newFileWatcher)
+    }
+
+    fun prettifyTimestamp(): String
+    {
+        return DEFAULT_TIMESTAMP_FORMATTER.format(
+            LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(creationTime),
+                ZoneId.systemDefault()
+            )
+        )
     }
 }
