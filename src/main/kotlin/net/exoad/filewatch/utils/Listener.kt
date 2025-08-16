@@ -19,3 +19,23 @@ abstract class Observable<T>
         observers.clear()
     }
 }
+
+abstract class Notifiable
+{
+    private val observers: MutableList<() -> Unit> = mutableListOf()
+
+    fun notifyObservers()
+    {
+        observers.forEach { it() }
+    }
+
+    fun observe(observer: () -> Unit)
+    {
+        observers.add(observer)
+    }
+
+    fun removeAllObservers()
+    {
+        observers.clear()
+    }
+}

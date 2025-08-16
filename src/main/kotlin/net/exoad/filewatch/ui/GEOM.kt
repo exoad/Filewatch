@@ -33,7 +33,7 @@ fun centerScreenRect(rect: Rect): Point
 {
     val screenSize = screenSize()
     return pt(
-        ((screenSize.width - rect.width) / 2).absoluteValue, ((screenSize.height - rect.width) / 2)
-            .absoluteValue
+        ((screenSize.width - rect.width) / 2),
+        ((screenSize.height - rect.height) / 2)
     )
 }

@@ -4,6 +4,7 @@ import net.exoad.filewatch.utils.Logger
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.appendText
 import kotlin.io.path.createDirectory
 import kotlin.io.path.createFile
 import kotlin.io.path.exists
@@ -44,6 +45,20 @@ object DataStore
         }
         val file = Path("${rootFolder.absolutePathString()}/$path")
         file.writeText(content())
+    }
+
+    fun appendToFile(path: String, content: () -> String)
+    {
+        val file = Path("${rootFolder.absolutePathString()}/$path")
+        if(!hasFile(path))
+        {
+            file.createFile()
+            file.writeText(content())
+        }
+        else
+        {
+            file.appendText(content())
+        }
     }
 
     fun readFile(path: String, consumer: (String) -> Unit)

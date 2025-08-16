@@ -1,10 +1,8 @@
 package net.exoad.filewatch
 
 import com.formdev.flatlaf.intellijthemes.FlatSpacegrayIJTheme
-import net.exoad.filewatch.engine.AutomationController
 import net.exoad.filewatch.engine.ErrorContext
 import net.exoad.filewatch.engine.FileSystemMonitor
-import net.exoad.filewatch.engine.Job
 import net.exoad.filewatch.app.components.AppHome
 import net.exoad.filewatch.app.components.pump
 import net.exoad.filewatch.ui.*
@@ -20,13 +18,13 @@ import javax.swing.UIManager
 import kotlin.io.path.absolutePathString
 import kotlin.jvm.java
 
-object Filewatch
+object FileWatch
 {
     val isDevBuild = System.getenv("isDevBuild").equals("true", ignoreCase = true)
 
-    fun javaClass(): Class<Filewatch>
+    fun javaClass(): Class<FileWatch>
     {
-        return Filewatch::class.java
+        return FileWatch::class.java
     }
 
     fun getResource(location: String): URL?
@@ -37,7 +35,7 @@ object Filewatch
 
 val start = Chronos.currentMillis()
 
-fun main()
+fun main(args: Array<String>)
 {
     System.setProperty("sun.java2d.opengl", "True")
     Logger.I.info("Starting AutoFile")
@@ -72,7 +70,7 @@ fun main()
         html {
             b {
                 text(
-                    "${if(Filewatch.isDevBuild) "(DevBuild) " else ""}Service woke up at ${
+                    "${if(FileWatch.isDevBuild) "(DevBuild) " else ""}Service woke up at ${
                         SimpleDateFormat().format(start)
                     }"
                 )
@@ -82,6 +80,8 @@ fun main()
     Runtime.getRuntime().addShutdownHook(Thread {
         FileSystemMonitor.unregister()
     })
-    // testing code, please remove for final production
-    AutomationController.registerJob(Job("Downloads", "C:\\Users\\${System.getProperty("user.name")}\\Downloads\\"))
+    if(FileWatch.isDevBuild)
+    {
+        delegatedMain(args)
+    }
 }

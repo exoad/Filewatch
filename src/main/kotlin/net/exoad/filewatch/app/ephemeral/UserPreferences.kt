@@ -1,5 +1,6 @@
 package net.exoad.filewatch.app.ephemeral
 
+import net.exoad.filewatch.utils.Chronos
 import net.exoad.filewatch.utils.Logger
 
 object UserPreferences
@@ -20,6 +21,11 @@ object UserPreferences
                 Logger.I.warning("UserPrefs loaded is invalid...")
                 reset()
             }
+            else
+            {
+                Logger.I.warning("UserPrefs validating...")
+                validate()
+            }
         }
         else
         {
@@ -31,17 +37,13 @@ object UserPreferences
 
     operator fun get(key: String): String
     {
-        require(properties.containsKey(key)) {
-            "UserPreferences key '$key' does not exist for [GET]. Fix this immediately!"
-        }
+        require(properties.containsKey(key)) { "UserPreferences key '$key' does not exist for [GET]. Fix this immediately!" }
         return properties[key]!!
     }
 
     operator fun <T : Any> set(key: String, value: T)
     {
-        require(properties.containsKey(key)) {
-            "UserPreferences key '$key' does not exist [SET]. Fix this immediately!"
-        }
+        require(properties.containsKey(key)) { "UserPreferences key '$key' does not exist [SET]. Fix this immediately!" }
         properties[key] = value.toString()
         saveToFile()
     }
@@ -50,7 +52,8 @@ object UserPreferences
     {
         properties.clear()
         properties.putAll(defaultProperties)
-        saveToFile()
+        DataStore.writeToFile("user_preferences") { "# AUTO-GENERATED. DO NOT EDIT MANUALLY!\n# ${Chronos.formatTime()}\n" }
+        saveToFile(append = true)
         Logger.I.info("UserPref.properties = $properties")
     }
 
@@ -80,19 +83,36 @@ object UserPreferences
             if(line.isNotBlank())
             {
                 line.split("\n").forEach {
-                    val parts = it.trim().split("=", limit = 2)
-                    if(parts.isNotEmpty())
+                    if(!line.startsWith("#")) // ignore comments
                     {
-                        properties[parts.first().trim()] = parts[1].trim()
+                        val parts = it.trim().split("=", limit = 2)
+                        if(parts.isNotEmpty())
+                        {
+                            properties[parts.first().trim()] = parts[1].trim()
+                        }
                     }
                 }
             }
         }
     }
 
-    fun saveToFile()
+    fun validate(): Boolean
     {
-        DataStore.writeToFile("user_preferences") {
+        var isValid = true
+        defaultProperties.forEach {
+            if(!properties.containsKey(it.key))
+            {
+                properties[it.key] = it.value
+                Logger.I.warning("Required property '${it.key}' was not found. Setting to default '${it.value}'")
+                isValid = false
+            }
+        }
+        return isValid
+    }
+
+    fun saveToFile(append: Boolean = false)
+    {
+        (if(append) DataStore::appendToFile else DataStore::writeToFile)("user_preferences") {
             properties.map { "${it.key}=${it.value}" }.joinToString("\n")
         }
     }

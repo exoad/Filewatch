@@ -3,6 +3,7 @@ package net.exoad.filewatch.app.components
 import net.exoad.filewatch.app.ephemeral.UserPreferences
 import net.exoad.filewatch.engine.AutomationController
 import net.exoad.filewatch.engine.Job
+import net.exoad.filewatch.engine.JobCreationEventType
 import net.exoad.filewatch.ui.*
 import net.exoad.filewatch.utils.Chronos
 import net.exoad.filewatch.utils.Logger
@@ -76,6 +77,11 @@ object JobsView
                             alignmentX = Alignment.RIGHT
                         }
                     ) {
+                        fun delete()
+                        {
+                            AutomationController.removeJob(job)
+                            Job.notifyObservers(JobCreationEventType.DELETE)
+                        }
                         if(UserPreferences.getBool("jobsview.show_deletion_dialog"))
                         {
                             launchConfirmDialog(
@@ -86,10 +92,12 @@ object JobsView
                                     UserPreferences["jobsview.show_deletion_dialog"] = !it
                                 },
                                 onCancel = {},
-                                onConfirm = {
-                                    AutomationController.removeJob(job)
-                                }
+                                onConfirm = ::delete
                             )
+                        }
+                        else
+                        {
+                            delete()
                         }
                     }
                 }
@@ -127,11 +135,18 @@ object JobsView
 
     init
     {
-        Job.observe {
-            Logger.I.info("JobsView Refreshing...")
+        Job.observe { eventType ->
             pump(html { span("color" to Theme.HTML_YELLOW) { text("Refreshing Jobs Listings") } })
-            val last = Job.hashInstances.size - 1
-            (table.model as AbstractTableModel).fireTableRowsInserted(last, last)
+            val last = if(Job.hashInstances.isNotEmpty()) Job.hashInstances.size - 1 else 0
+            Logger.I.info("JobsView EvenType: [$eventType] at $last")
+            (table.model as AbstractTableModel).let {
+                when(eventType)
+                {
+                    JobCreationEventType.ADD -> it::fireTableRowsInserted
+                    JobCreationEventType.DELETE -> it::fireTableRowsDeleted
+                    JobCreationEventType.UPDATE -> it::fireTableRowsUpdated
+                }
+            }(last, last)
         }
     }
 

@@ -11,7 +11,7 @@ import javax.swing.WindowConstants
 
 object AppHome
 {
-    val frame = frame("Filewatch").apply {
+    val frame = frame("FileWatch").apply {
         pack()
         size = dim(850, 600)
         preferredSize = size
@@ -129,6 +129,8 @@ object AppHome
         SwingUtilities.invokeLater {
             frame.location = centerScreenRect(frame.size.toRect())
             frame.isVisible = true
+            frame.requestFocus()
+            frame.toFront()
         }
     }
 

@@ -1,7 +1,7 @@
 package net.exoad.filewatch.ui
 
 import com.formdev.flatlaf.extras.FlatSVGIcon
-import net.exoad.filewatch.Filewatch
+import net.exoad.filewatch.FileWatch
 import net.exoad.filewatch.utils.Logger
 import java.awt.*
 import java.awt.event.ActionEvent
@@ -23,6 +23,22 @@ fun JComponent.repaintLater()
 {
     repaint(75L)
 }
+
+//fun JFrame.invokeLater(invokable: () -> Unit)
+//{
+//    if(this.isVisible || this.isShowing)
+//    {
+//        invokable()
+//    }
+//}
+//
+//fun JDialog.invokeLater(invokable: () -> Unit)
+//{
+//    if(this.isVisible || this.isShowing)
+//    {
+//        invokable()
+//    }
+//}
 
 class UIBuildException(message: String) : RuntimeException(message)
 
@@ -83,7 +99,7 @@ fun Component.applyModifier(modifier: Modifier?)
 
 fun image(loc: String): ImageIcon
 {
-    return ImageIcon(Filewatch.getResource(loc))
+    return ImageIcon(FileWatch.getResource(loc))
 }
 
 fun frame(title: String): JFrame
