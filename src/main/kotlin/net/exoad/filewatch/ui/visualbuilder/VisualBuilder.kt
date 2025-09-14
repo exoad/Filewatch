@@ -2,8 +2,8 @@ package net.exoad.filewatch.ui.visualbuilder
 
 import com.formdev.flatlaf.extras.FlatSVGIcon
 import net.exoad.filewatch.ui.*
-import net.exoad.filewatch.utils.Logger
 import net.exoad.filewatch.utils.EMPTY
+import net.exoad.filewatch.utils.Logger
 import net.exoad.filewatch.utils.Theme
 import net.exoad.filewatch.utils.truncate
 import java.awt.Component
@@ -16,14 +16,12 @@ import kotlin.reflect.full.primaryConstructor
 class VisualBuilder<T : Any>(
     private val visualPrototype: VisualPrototype<T>,
     parent: Component? = null,
-) : JFrame()
-{
+) : JFrame() {
     lateinit var onCancel: () -> Unit
     lateinit var onBuild: (T) -> Unit
     val storedParameters = mutableListOf<Any>()
 
-    init
-    {
+    init {
         iconImage = image("/logo.png").image
         title = visualPrototype.visualClass.name
         defaultCloseOperation = DISPOSE_ON_CLOSE
@@ -45,8 +43,7 @@ class VisualBuilder<T : Any>(
                     +scrollPane {
                         +col {
                             var i = 0
-                            for(field in visualPrototype.fields)
-                            {
+                            for (field in visualPrototype.fields) {
                                 +row(
                                     Modifier().apply { padding = padSym(v = 8) },
                                     content = components(field, i++)
@@ -61,16 +58,13 @@ class VisualBuilder<T : Any>(
                     +hSpacer()
                     +button("Cancel", outlined = true, icon = svg("icons/cancel_circle.svg")) {
                         dispose()
-                        if(::onCancel.isInitialized)
-                        {
+                        if (::onCancel.isInitialized) {
                             onCancel.invoke()
                         }
                     }
                     +button("Apply", icon = svg("icons/check_circle.svg")) {
-                        if(::onBuild.isInitialized)
-                        {
-                            if(visualPrototype.clazz.primaryConstructor == null)
-                            {
+                        if (::onBuild.isInitialized) {
+                            if (visualPrototype.clazz.primaryConstructor == null) {
                                 Logger.I.severe(
                                     "It is dangerous to build a non Kotlin Primary Constructor. Defaulting to first class constructor."
                                 )
@@ -92,58 +86,45 @@ class VisualBuilder<T : Any>(
         pack()
         size = dim(660, preferredSize.height)
         preferredSize = size
-        if(parent == null)
-        {
+        if (parent == null) {
             location = centerScreenRect(size.toRect())
-        }
-        else
-        {
+        } else {
             setLocationRelativeTo(parent)
         }
         isAlwaysOnTop = true
     }
 
-    fun <T : Any> addParameterData(type: String, index: Int, value: T)
-    {
-        while(storedParameters.size <= index)
-        {
+    fun <T : Any> addParameterData(type: String, index: Int, value: T) {
+        while (storedParameters.size <= index) {
             storedParameters.add(EMPTY)
         }
         storedParameters[index] = value
         Logger.I.info("${hashCode()} VisualBuilder[${visualPrototype.clazz.simpleName!!}] ($type): $index -> $value")
     }
 
-    private fun components(field: Annotation, index: Int): MultiChildrenScope.() -> Unit
-    {
-        fun hint(value: String): Component
-        {
+    private fun components(field: Annotation, index: Int): MultiChildrenScope.() -> Unit {
+        fun hint(value: String): Component {
             return label(value, fontSize = 12F)
         }
-        return when(field)
-        {
-            is VisualMultiObject    ->
-            {
+        return when (field) {
+            is VisualMultiObject -> {
                 addParameterData("MultiObj", index, field.discreteValues.first().primaryConstructor!!.call())
                 return {
                     val title = col {
                         +label("<html><b>${field.name}</b></html>")
                         +hint(field.hint)
                     }
-                    if(field.iconPath.isNotBlank())
-                    {
+                    if (field.iconPath.isNotBlank()) {
                         +row {
                             +icon(svg(field.iconPath, 18, 18))
                             +hStrut(8)
                             +title
                         }
-                    }
-                    else
-                    {
+                    } else {
                         +title
                     }
                     val visualObjectBuild = remember<VisualBuilder<*>?>(null)
-                    fun fieldSubhint(v: String, classAnnot: List<Annotation>): String
-                    {
+                    fun fieldSubhint(v: String, classAnnot: List<Annotation>): String {
                         return "<html><b>$v</b><br/>${
                             (classAnnot.findLast { it is VisualClass }!! as VisualClass).hint
                         }</html>"
@@ -160,12 +141,10 @@ class VisualBuilder<T : Any>(
                         ),
                         values = mapper.keys.toTypedArray(),
                         onChange = { selectedObj, comboBox ->
-                            if(visualObjectBuild() != null)
-                            {
+                            if (visualObjectBuild() != null) {
                                 visualObjectBuild()!!.dispose()
                             }
-                            if(mapper[selectedObj]!! != field.discreteValues.first())
-                            {
+                            if (mapper[selectedObj]!! != field.discreteValues.first()) {
                                 val discreteSelectedObject = build(mapper[selectedObj]!!).apply {
                                     onBuild = { builtObj ->
                                         visualObjectBuild(this)
@@ -190,37 +169,34 @@ class VisualBuilder<T : Any>(
                         }
                     ).apply {
                         visualObjectBuild.observe {
-                            background = if(it == null) null else color(Theme.SUCCESS_COLOR)
+                            background = if (it == null) null else color(Theme.SUCCESS_COLOR)
                         }
                     }
                 }
             }
-            is VisualObject         ->
-            {
+
+            is VisualObject -> {
                 addParameterData("Object", index, Any())
                 return {
                     val title = col {
                         +label("<html><b>${field.name}</b></html>")
                         +hint(field.hint)
                     }
-                    if(field.iconPath.isNotBlank())
-                    {
+                    if (field.iconPath.isNotBlank()) {
                         +row {
                             +icon(svg(field.iconPath, 18, 18))
                             +hStrut(8)
                             +title
                         }
-                    }
-                    else
-                    {
+                    } else {
                         +title
                     }
                     val builtVisualObject = remember(false)
                     +(button(
-                        if(builtVisualObject()) "${field.name}#${storedParameters[index].hashCode()}"
+                        if (builtVisualObject()) "${field.name}#${storedParameters[index].hashCode()}"
                         else field.buttonLabel,
-                        backgroundColor = if(builtVisualObject()) color(Theme.SUCCESS_COLOR) else null,
-                        icon = if(builtVisualObject()) null else svg("icons/create.svg")
+                        backgroundColor = if (builtVisualObject()) color(Theme.SUCCESS_COLOR) else null,
+                        icon = if (builtVisualObject()) null else svg("icons/create.svg")
                     ) {
                         val targetClass = visualPrototype.recursiveObjectsTable[field]!! // bang operator to catch
                         // stray errors before something further down happens (definitely a programming logic bug)
@@ -235,7 +211,7 @@ class VisualBuilder<T : Any>(
                         }
                     }).apply {
                         builtVisualObject.observe {
-                            this.background = if(it) color(Theme.SUCCESS_COLOR)
+                            this.background = if (it) color(Theme.SUCCESS_COLOR)
                             else UIManager.getColor(
                                 "Button.background"
                             )
@@ -243,8 +219,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualPath           ->
-            {
+
+            is VisualPath -> {
                 addParameterData("Path", index, field.defaultValue)
                 return {
                     +col {
@@ -283,8 +259,7 @@ class VisualBuilder<T : Any>(
                             val picker = filePicker(
                                 allowMultiple = false,
                                 modifier = Modifier().apply { size = dim(740, 540) },
-                                mode = when(field.type)
-                                {
+                                mode = when (field.type) {
                                     VisualPath.Type.FILES -> FilePickerMode.DIRECTORIES
                                     VisualPath.Type.DIRECTORIES -> FilePickerMode.DIRECTORIES
                                     else -> FilePickerMode.BOTH
@@ -295,13 +270,10 @@ class VisualBuilder<T : Any>(
                                     "Select"
                                 )
                             }
-                            if(picker.selectedFile == null)
-                            {
+                            if (picker.selectedFile == null) {
                                 addParameterData("Path", index, ".")
                                 selectedPath(".")
-                            }
-                            else
-                            {
+                            } else {
                                 addParameterData<String>("Path", index, picker.selectedFile.absolutePath)
                                 selectedPath(picker.selectedFile.absolutePath)
                             }
@@ -309,8 +281,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualLong           ->
-            {
+
+            is VisualLong -> {
                 addParameterData("Long", index, field.defaultValue)
                 return {
                     +col {
@@ -322,8 +294,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualDiscreteLong   ->
-            {
+
+            is VisualDiscreteLong -> {
                 addParameterData("DiscreteLong", index, field.defaultValue)
                 return {
                     +col {
@@ -338,8 +310,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualDiscreteDouble ->
-            {
+
+            is VisualDiscreteDouble -> {
                 addParameterData("DiscreteDouble", index, field.defaultValue)
                 return {
                     +col {
@@ -355,8 +327,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualDouble         ->
-            {
+
+            is VisualDouble -> {
                 addParameterData("Double", index, field.defaultValue)
                 return {
                     +col {
@@ -372,8 +344,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualDiscreteString ->
-            {
+
+            is VisualDiscreteString -> {
                 addParameterData("DiscreteString", index, field.defaultValue)
                 return {
                     +col {
@@ -385,8 +357,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualString         ->
-            {
+
+            is VisualString -> {
                 addParameterData("String", index, field.defaultValue)
                 return {
                     +col {
@@ -400,8 +372,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            is VisualBool           ->
-            {
+
+            is VisualBool -> {
                 addParameterData("Bool", index, field.defaultValue)
                 return {
                     +col {
@@ -413,8 +385,8 @@ class VisualBuilder<T : Any>(
                     }
                 }
             }
-            else                    ->
-            {
+
+            else -> {
                 {
                     +panel()
                     Logger.I.warning("Failed to visually build '$field'. Because it is unsupported.")
@@ -423,13 +395,11 @@ class VisualBuilder<T : Any>(
         }
     }
 
-    fun showNow()
-    {
+    fun showNow() {
         isVisible = true
     }
 
-    companion object
-    {
+    companion object {
         private val visualDecorators = arrayOf(
             VisualObject::class,
             VisualLong::class,
@@ -443,30 +413,25 @@ class VisualBuilder<T : Any>(
         )
 
         @JvmStatic
-        fun isBuildable(clazz: KClass<*>): Boolean
-        {
-            if(clazz.annotations.none { it is VisualClass })
-            {
+        fun isBuildable(clazz: KClass<*>): Boolean {
+            if (clazz.annotations.none { it is VisualClass }) {
                 return false
             }
-            if(clazz.simpleName == null) // anonymous class likely
+            if (clazz.simpleName == null) // anonymous class likely
             {
                 Logger.I.warning("An anonymous class cannot be built visually. (simpleName returned null)")
                 return false
             }
             val primaryConstructor = clazz.primaryConstructor
-            if(primaryConstructor == null || primaryConstructor.parameters.isEmpty())
-            {
+            if (primaryConstructor == null || primaryConstructor.parameters.isEmpty()) {
                 return true
             }
             return primaryConstructor.parameters.all { param ->
                 param.annotations.any {
-                    if(it is VisualObject)
-                    {
+                    if (it is VisualObject) {
                         return isBuildable(param.type.classifier as KClass<*>)
                     }
-                    if(it is VisualMultiObject)
-                    {
+                    if (it is VisualMultiObject) {
                         return it.discreteValues.all { discreteClass -> isBuildable(discreteClass) }
                     }
                     return visualDecorators.contains(it.annotationClass)
@@ -475,30 +440,22 @@ class VisualBuilder<T : Any>(
         }
 
         @JvmStatic
-        fun <T : Any> buildPrototype(clazz: KClass<T>): VisualPrototype<T>
-        {
+        fun <T : Any> buildPrototype(clazz: KClass<T>): VisualPrototype<T> {
             assert(isBuildable(clazz)) { "Cannot build non-visual class $clazz." }
-            val visualClass = if(clazz.annotations.any { it is VisualClass })
-            {
+            val visualClass = if (clazz.annotations.any { it is VisualClass }) {
                 clazz.annotations.find { it is VisualClass } as VisualClass
-            }
-            else
-            {
+            } else {
                 VisualClass(clazz.simpleName ?: clazz.qualifiedName ?: clazz.toString(), hint = "Unknown?")
             }
             val fields = mutableListOf<Annotation>()
             val recursiveObjectsTable = mutableMapOf<Annotation, KClass<*>>()
-            if(clazz.primaryConstructor != null)
-            {
+            if (clazz.primaryConstructor != null) {
                 clazz.primaryConstructor!!.parameters.forEach { param ->
                     param.annotations.forEach { annotation ->
-                        if(annotation.annotationClass.simpleName!!.startsWith("Visual"))
-                        {
-                            if(annotation is VisualObject)
-                            {
+                        if (annotation.annotationClass.simpleName!!.startsWith("Visual")) {
+                            if (annotation is VisualObject) {
                                 val paramType = param.type.classifier as? KClass<*>
-                                if(paramType != null)
-                                {
+                                if (paramType != null) {
                                     recursiveObjectsTable[annotation] = paramType
                                 }
                             }
@@ -511,8 +468,7 @@ class VisualBuilder<T : Any>(
         }
 
         @JvmStatic
-        fun <T : Any> build(clazz: KClass<T>): VisualBuilder<T>
-        {
+        fun <T : Any> build(clazz: KClass<T>): VisualBuilder<T> {
             return VisualBuilder(buildPrototype(clazz))
         }
     }

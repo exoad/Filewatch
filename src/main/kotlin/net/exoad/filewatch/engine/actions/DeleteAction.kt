@@ -1,7 +1,7 @@
 package net.exoad.filewatch.engine.actions
 
-import net.exoad.filewatch.engine.FileAction
 import net.exoad.filewatch.app.components.pump
+import net.exoad.filewatch.engine.FileAction
 import net.exoad.filewatch.ui.html
 import net.exoad.filewatch.ui.span
 import net.exoad.filewatch.ui.text
@@ -11,12 +11,9 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 
-object DeleteAction : FileAction
-{
-    override fun execute(filePath: Path): Boolean
-    {
-        if(!Files.exists(filePath))
-        {
+object DeleteAction : FileAction {
+    override fun execute(filePath: Path): Boolean {
+        if (!Files.exists(filePath)) {
             Logger.I.warning("DeleteAction: File does not exist at path: $filePath. Cannot delete.")
             pump(
                 html {
@@ -27,14 +24,11 @@ object DeleteAction : FileAction
             )
             return false
         }
-        try
-        {
+        try {
             Files.delete(filePath)
             Logger.I.info("DeleteAction: Successfully deleted file: $filePath")
             return true
-        }
-        catch(e: IOException)
-        {
+        } catch (e: IOException) {
             Logger.I.severe("DeleteAction: Failed to [DELETE] file $filePath: ${e.message}")
             pump(
                 html {
@@ -44,9 +38,7 @@ object DeleteAction : FileAction
                 }
             )
             return false
-        }
-        catch(e: SecurityException)
-        {
+        } catch (e: SecurityException) {
             Logger.I.severe("DeleteAction: Permission denied when deleting file $filePath: ${e.message}")
             pump(
                 html {

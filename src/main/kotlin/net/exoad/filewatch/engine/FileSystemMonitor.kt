@@ -1,15 +1,15 @@
 package net.exoad.filewatch.engine
 
+import net.exoad.filewatch.engine.FileSystemMonitor.register
+import net.exoad.filewatch.engine.FileSystemMonitor.start
+import net.exoad.filewatch.engine.FileSystemMonitor.stop
+import net.exoad.filewatch.engine.FileSystemMonitor.unregister
+import net.exoad.filewatch.engine.FileSystemMonitor.watch
 import net.exoad.filewatch.ui.visualbuilder.VisualClass
 import net.exoad.filewatch.ui.visualbuilder.VisualPath
 import net.exoad.filewatch.utils.Logger
 import java.io.IOException
-import java.nio.file.FileSystems
-import java.nio.file.Path
-import java.nio.file.StandardWatchEventKinds
-import java.nio.file.WatchEvent
-import java.nio.file.WatchKey
-import java.nio.file.WatchService
+import java.nio.file.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.io.path.isDirectory
@@ -20,8 +20,7 @@ class WatchFolderRequest(
     val path: String = ".",
 )
 
-object FileSystemMonitor
-{
+object FileSystemMonitor {
     private lateinit var service: WatchService
     private val keys: MutableMap<WatchKey, Path> = mutableMapOf()
     private val listeners: MutableMap<Path, (newFile: Path) -> Unit> = mutableMapOf()
@@ -32,14 +31,12 @@ object FileSystemMonitor
      */
     private var globalListener = mutableListOf<((path: Path) -> Unit)>()
 
-    fun attachGlobalListener(listener: (path: Path) -> Unit)
-    {
+    fun attachGlobalListener(listener: (path: Path) -> Unit) {
         globalListener.add(listener)
         Logger.I.info("FolderWatchdog attached a global listener: ${listener.hashCode()}")
     }
 
-    fun detachGlobalListeners()
-    {
+    fun detachGlobalListeners() {
         globalListener.clear()
         Logger.I.info("FolderWatchdog has detached all global listeners")
     }
@@ -49,60 +46,52 @@ object FileSystemMonitor
     @Volatile
     private var running: Boolean = false
 
-    fun isRunning(): Boolean
-    {
+    fun isRunning(): Boolean {
         return running
     }
 
     val foldersWatchingCount: Int get() = keys.size
     val foldersWatching: List<Path> get() = keys.values.toList()
 
-    fun isWatching(path: Path): Boolean
-    {
+    fun isWatching(path: Path): Boolean {
         return keys.values.contains(path)
     }
 
-    fun subscribe(folder: Path, listener: (newFile: Path) -> Unit)
-    {
+    fun subscribe(folder: Path, listener: (newFile: Path) -> Unit) {
         listeners[folder] = listener
     }
 
-    fun subscribeIfNot(folder: Path, listener: (newFile: Path) -> Unit)
-    {
+    fun subscribeIfNot(folder: Path, listener: (newFile: Path) -> Unit) {
         listeners.putIfAbsent(folder) { listener }
     }
 
-    fun isSubscribed(folder: Path): Boolean
-    {
+    fun isSubscribed(folder: Path): Boolean {
         return listeners[folder] != null
     }
 
     /**
      * Removes the listener for [folder] if applicable.
      */
-    fun unsubscribe(folder: Path)
-    {
+    fun unsubscribe(folder: Path) {
         listeners.remove(folder)
     }
 
     /**
      * The watch key and also any potential listeners are removed
      */
-    fun stopWatching(folder: Path)
-    {
+    fun stopWatching(folder: Path) {
         listeners.remove(folder)
         val watchKey = keys.filter { it.value == folder }.keys.firstOrNull()
         watchKey?.cancel()
         keys.remove(watchKey)
         Logger.I.info("FolderWatchdog Stopped watching folder: $folder")
-        if(keys.isEmpty()) stopInternal()
+        if (keys.isEmpty()) stopInternal()
     }
 
     /**
      * Initializes the service to start and prepares it for [start] to be called.
      */
-    fun register()
-    {
+    fun register() {
         service = FileSystems.getDefault().newWatchService()
         Logger.I.info("Registered Watchdog service object")
     }
@@ -113,8 +102,7 @@ object FileSystemMonitor
      * It is required for [path] to be a valid directory
      */
     @Throws(IOException::class)
-    fun watch(path: Path)
-    {
+    fun watch(path: Path) {
         require(path.isDirectory())
         keys[path.register(service, StandardWatchEventKinds.ENTRY_CREATE)] = path
         globalListener.forEach { it(path) }
@@ -125,10 +113,8 @@ object FileSystemMonitor
      * Calls [watch] on [path] if the watchdog isn't already watching [path]
      */
     @Throws(IOException::class)
-    fun watchIfNot(path: Path)
-    {
-        if(!isWatching(path))
-        {
+    fun watchIfNot(path: Path) {
+        if (!isWatching(path)) {
             watch(path)
         }
     }
@@ -141,45 +127,35 @@ object FileSystemMonitor
      * service object (see: [WatchService]).
      */
     @Suppress("UNCHECKED_CAST")
-    fun start()
-    {
-        if(!running)
-        {
+    fun start() {
+        if (!running) {
             running = true
-            if(executor.isTerminated || executor.isShutdown)
+            if (executor.isTerminated || executor.isShutdown)
                 executor = Executors.newSingleThreadExecutor()
             executor.submit {
-                while(running)
-                {
+                while (running) {
                     var key: WatchKey?
-                    try
-                    {
+                    try {
                         key = service.take()
-                    }
-                    catch(_: InterruptedException)
-                    {
+                    } catch (_: InterruptedException) {
                         Thread.currentThread().interrupt()
                         return@submit
                     }
                     key?.let { k ->
                         val dir = keys[k]
-                        for(event in k.pollEvents())
-                        {
+                        for (event in k.pollEvents()) {
                             val kind: WatchEvent.Kind<*>? = event.kind()
                             val ev = event as WatchEvent<Path>
                             val name = ev.context()
                             val child = dir?.resolve(name)
-                            if(kind == StandardWatchEventKinds.ENTRY_CREATE && child != null)
-                            {
+                            if (kind == StandardWatchEventKinds.ENTRY_CREATE && child != null) {
                                 listeners[dir]?.invoke(child)
                             }
                         }
                         val valid = k.reset()
-                        if(!valid)
-                        {
+                        if (!valid) {
                             keys.remove(k)
-                            if(keys.isEmpty())
-                            {
+                            if (keys.isEmpty()) {
                                 stopInternal()
                             }
                         }
@@ -196,45 +172,35 @@ object FileSystemMonitor
      *
      * To dispose everything call [unregister]
      */
-    fun stop()
-    {
+    fun stop() {
         running = false
         executor.shutdownNow()
-        try
-        {
-            if(!executor.awaitTermination(500, TimeUnit.MILLISECONDS))
-            {
+        try {
+            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                 Logger.I.warning("FolderWatchdog thread did not terminate gracefully.")
             }
-        }
-        catch(_: InterruptedException)
-        {
+        } catch (_: InterruptedException) {
             Thread.currentThread().interrupt()
             Logger.I.warning("Interrupted while waiting for FolderWatchdog thread to terminate.")
         }
         Logger.I.info("FolderWatchdog thread stopped.")
     }
 
-    private fun stopInternal()
-    {
+    private fun stopInternal() {
         running = false
     }
 
     /**
      * Removes everything and should be called after [stop]
      */
-    fun unregister()
-    {
+    fun unregister() {
         stop()
         keys.forEach { (key, _) -> key.cancel() }
         keys.clear()
-        try
-        {
+        try {
             service.close()
             Logger.I.info("Watchdog service closed.")
-        }
-        catch(ex: IOException)
-        {
+        } catch (ex: IOException) {
             Logger.I.severe("Error closing Watchdog service: ${ex.message}")
         }
     }

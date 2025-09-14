@@ -9,8 +9,7 @@ import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import javax.swing.WindowConstants
 
-object AppHome
-{
+object AppHome {
     val frame = frame("FileWatch").apply {
         pack()
         size = dim(850, 600)
@@ -26,12 +25,9 @@ object AppHome
                         VisualBuilder.build(Job::class).apply {
                             onBuild = { obj ->
                                 AutomationController.registerJob(
-                                    if(obj.canonicalName.isBlank())
-                                    {
+                                    if (obj.canonicalName.isBlank()) {
                                         Job(obj.folder, obj.folder)
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         obj
                                     }
                                 )
@@ -39,17 +35,14 @@ object AppHome
                         }.showNow()
                     }
                     +toggleButton {
-                        return@toggleButton if(it)
-                        {
+                        return@toggleButton if (it) {
                             ToggleButtonState(
                                 icon = svg("icons/pause.svg"),
                                 backgroundColor = color(Theme.SUCCESS_COLOR),
                                 boldedLabel = true,
                                 tooltip = "Pause Service"
                             )
-                        }
-                        else
-                        {
+                        } else {
                             ToggleButtonState(
                                 icon = svg("icons/play_arrow.svg"),
                                 backgroundColor = UIManager.getColor("Button.background"),
@@ -124,8 +117,7 @@ object AppHome
         )
     }
 
-    fun show()
-    {
+    fun show() {
         SwingUtilities.invokeLater {
             frame.location = centerScreenRect(frame.size.toRect())
             frame.isVisible = true
@@ -134,15 +126,13 @@ object AppHome
         }
     }
 
-    fun hide()
-    {
+    fun hide() {
         SwingUtilities.invokeLater {
             frame.isVisible = false
         }
     }
 
-    fun dispose()
-    {
+    fun dispose() {
         SwingUtilities.invokeLater {
             frame.dispose()
         }

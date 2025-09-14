@@ -3,53 +3,42 @@ package net.exoad.filewatch.app.ephemeral
 import net.exoad.filewatch.utils.Chronos
 import net.exoad.filewatch.utils.Logger
 
-object UserPreferences
-{
+object UserPreferences {
     val defaultProperties = mapOf(
         "jobsview.show_deletion_dialog" to "true"
     )
     private val properties = mutableMapOf<String, String>()
 
-    fun initialize()
-    {
-        if(DataStore.hasFile("user_preferences"))
-        {
+    fun initialize() {
+        if (DataStore.hasFile("user_preferences")) {
             Logger.I.info("Reloading UserPrefs from file...")
             reloadFromFile()
-            if(properties.isEmpty())
-            {
+            if (properties.isEmpty()) {
                 Logger.I.warning("UserPrefs loaded is invalid...")
                 reset()
-            }
-            else
-            {
+            } else {
                 Logger.I.warning("UserPrefs validating...")
                 validate()
             }
-        }
-        else
-        {
+        } else {
             Logger.I.info("Starting UserPrefs from scratch...")
             DataStore.createFile("user_preferences")
             reset()
         }
     }
 
-    operator fun get(key: String): String
-    {
+    operator fun get(key: String): String {
         require(properties.containsKey(key)) { "UserPreferences key '$key' does not exist for [GET]. Fix this immediately!" }
         return properties[key]!!
     }
 
-    operator fun <T : Any> set(key: String, value: T)
-    {
+    operator fun <T : Any> set(key: String, value: T) {
         require(properties.containsKey(key)) { "UserPreferences key '$key' does not exist [SET]. Fix this immediately!" }
         properties[key] = value.toString()
         saveToFile()
     }
 
-    fun reset()
-    {
+    fun reset() {
         properties.clear()
         properties.putAll(defaultProperties)
         DataStore.writeToFile("user_preferences") { "# AUTO-GENERATED. DO NOT EDIT MANUALLY!\n# ${Chronos.formatTime()}\n" }
@@ -57,37 +46,30 @@ object UserPreferences
         Logger.I.info("UserPref.properties = $properties")
     }
 
-    fun getBool(key: String): Boolean
-    {
+    fun getBool(key: String): Boolean {
         return this[key].toBoolean()
     }
 
-    fun getInt(key: String): Int
-    {
+    fun getInt(key: String): Int {
         return this[key].toInt()
     }
 
-    fun getFloat(key: String): Float
-    {
+    fun getFloat(key: String): Float {
         return this[key].toFloat()
     }
 
-    fun exportProperties(): Map<String, Any>
-    {
+    fun exportProperties(): Map<String, Any> {
         return properties.toMap()
     }
 
-    fun reloadFromFile()
-    {
+    fun reloadFromFile() {
         DataStore.readFile("user_preferences") { line ->
-            if(line.isNotBlank())
-            {
+            if (line.isNotBlank()) {
                 line.split("\n").forEach {
-                    if(!line.startsWith("#")) // ignore comments
+                    if (!line.startsWith("#")) // ignore comments
                     {
                         val parts = it.trim().split("=", limit = 2)
-                        if(parts.isNotEmpty())
-                        {
+                        if (parts.isNotEmpty()) {
                             properties[parts.first().trim()] = parts[1].trim()
                         }
                     }
@@ -96,12 +78,10 @@ object UserPreferences
         }
     }
 
-    fun validate(): Boolean
-    {
+    fun validate(): Boolean {
         var isValid = true
         defaultProperties.forEach {
-            if(!properties.containsKey(it.key))
-            {
+            if (!properties.containsKey(it.key)) {
                 properties[it.key] = it.value
                 Logger.I.warning("Required property '${it.key}' was not found. Setting to default '${it.value}'")
                 isValid = false
@@ -110,9 +90,8 @@ object UserPreferences
         return isValid
     }
 
-    fun saveToFile(append: Boolean = false)
-    {
-        (if(append) DataStore::appendToFile else DataStore::writeToFile)("user_preferences") {
+    fun saveToFile(append: Boolean = false) {
+        (if (append) DataStore::appendToFile else DataStore::writeToFile)("user_preferences") {
             properties.map { "${it.key}=${it.value}" }.joinToString("\n")
         }
     }

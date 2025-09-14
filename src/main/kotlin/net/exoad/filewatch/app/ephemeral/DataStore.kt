@@ -1,70 +1,48 @@
 package net.exoad.filewatch.app.ephemeral
 
 import net.exoad.filewatch.utils.Logger
-import java.nio.file.Path
-import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.appendText
-import kotlin.io.path.createDirectory
-import kotlin.io.path.createFile
-import kotlin.io.path.exists
-import kotlin.io.path.readText
-import kotlin.io.path.writeText
+import kotlin.io.path.*
 
-object DataStore
-{
+object DataStore {
     val rootFolder = Path("./user/")
 
-    fun initialize()
-    {
+    fun initialize() {
         Logger.I.info("Initializing the data store...")
-        if(!rootFolder.exists())
-        {
+        if (!rootFolder.exists()) {
             rootFolder.createDirectory()
         }
     }
 
-    fun hasFile(path: String): Boolean
-    {
+    fun hasFile(path: String): Boolean {
         return Path("${rootFolder.absolutePathString()}/$path").exists()
     }
 
-    fun createFile(path: String)
-    {
-        if(!hasFile(path))
-        {
+    fun createFile(path: String) {
+        if (!hasFile(path)) {
             Path("${rootFolder.absolutePathString()}/$path").createFile()
         }
     }
 
-    fun writeToFile(path: String, content: () -> String)
-    {
-        if(!hasFile(path))
-        {
+    fun writeToFile(path: String, content: () -> String) {
+        if (!hasFile(path)) {
             createFile(path)
         }
         val file = Path("${rootFolder.absolutePathString()}/$path")
         file.writeText(content())
     }
 
-    fun appendToFile(path: String, content: () -> String)
-    {
+    fun appendToFile(path: String, content: () -> String) {
         val file = Path("${rootFolder.absolutePathString()}/$path")
-        if(!hasFile(path))
-        {
+        if (!hasFile(path)) {
             file.createFile()
             file.writeText(content())
-        }
-        else
-        {
+        } else {
             file.appendText(content())
         }
     }
 
-    fun readFile(path: String, consumer: (String) -> Unit)
-    {
-        if(hasFile(path))
-        {
+    fun readFile(path: String, consumer: (String) -> Unit) {
+        if (hasFile(path)) {
             consumer(Path("${rootFolder.absolutePathString()}/$path").readText())
         }
     }

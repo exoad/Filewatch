@@ -8,15 +8,12 @@ import net.exoad.filewatch.utils.Logger
 import net.exoad.filewatch.utils.Theme
 import java.nio.file.Path
 
-object AutomationController
-{
+object AutomationController {
     private val jobs = mutableMapOf<Path /*folderPath*/, MutableList<Job> /*jobInstances*/>()
 
-    fun removeJob(job: Job)
-    {
+    fun removeJob(job: Job) {
         val folder = Path.of(job.folder)
-        if(jobs.containsKey(folder))
-        {
+        if (jobs.containsKey(folder)) {
             jobs.remove(folder)
             Logger.I.info("AutomationController removed $folder's job")
             pump(html {
@@ -24,9 +21,7 @@ object AutomationController
                     text("Removed $folder's job")
                 }
             })
-        }
-        else
-        {
+        } else {
             Logger.I.warning("AutomationController could not remove $folder's job because it doesn't exist.")
             pump(
                 html {
@@ -38,15 +33,11 @@ object AutomationController
         }
     }
 
-    fun registerJob(job: Job)
-    {
+    fun registerJob(job: Job) {
         val folder = Path.of(job.folder)
-        if(jobs.containsKey(folder))
-        {
+        if (jobs.containsKey(folder)) {
             jobs[folder]!!.add(job)
-        }
-        else
-        {
+        } else {
             jobs[folder] = mutableListOf(job)
         }
         FileSystemMonitor.watchIfNot(folder)

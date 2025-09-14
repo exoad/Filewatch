@@ -15,15 +15,14 @@ import javax.swing.JDialog
 import javax.swing.WindowConstants
 import kotlin.system.exitProcess
 
-fun launchErrorDialog(context: ErrorContext)
-{
+fun launchErrorDialog(context: ErrorContext) {
     val copyProducer = context.copyTextProducer ?: {
-        "${context.title}\n${context.description}\n${if(context.cause != null) "---\n${context.cause.stringifyTrace()}" else ""}"
+        "${context.title}\n${context.description}\n${if (context.cause != null) "---\n${context.cause.stringifyTrace()}" else ""}"
     }
     JDialog().apply {
         title = "Error: ${context.title}"
         isAlwaysOnTop = true
-        size = dim(550, if(context.cause != null && context.description.length > 80) 400 else 310)
+        size = dim(550, if (context.cause != null && context.description.length > 80) 400 else 310)
         preferredSize = size
         contentPane = scaffold(
             center = {
@@ -69,8 +68,7 @@ fun launchErrorDialog(context: ErrorContext)
                                         modifier = Modifier().apply { size = dim(450, 140) }
                                     )
                                 }
-                                if(context.cause != null)
-                                {
+                                if (context.cause != null) {
                                     +row(Modifier().apply { border = BorderFactory.createTitledBorder("Details") }) {
                                         +label(
                                             html {
@@ -107,17 +105,12 @@ fun launchErrorDialog(context: ErrorContext)
                 }
             }
         )
-        addWindowListener(object : WindowAdapter()
-        {
-            override fun windowClosed(e: WindowEvent?)
-            {
-                if(context.isFatal)
-                {
+        addWindowListener(object : WindowAdapter() {
+            override fun windowClosed(e: WindowEvent?) {
+                if (context.isFatal) {
                     println("Fatal Error '${context.title}'. Exiting...")
                     exitProcess(1)
-                }
-                else
-                {
+                } else {
                     AppHome.frame.isEnabled = true
                 }
             }
@@ -139,8 +132,7 @@ fun launchConfirmDialog(
     showHideNextTimeListener: (Boolean) -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
-)
-{
+) {
     JDialog().apply {
         isAlwaysOnTop = true
         this.title = title
@@ -164,8 +156,7 @@ fun launchConfirmDialog(
             },
             south = {
                 +row(Modifier().apply { padding = padOnly(top = 20) }) {
-                    if(showHideNextTime)
-                    {
+                    if (showHideNextTime) {
                         +checkbox(false) {
                             showHideNextTimeListener(it)
                         }
@@ -183,10 +174,8 @@ fun launchConfirmDialog(
                 }
             }
         )
-        addWindowListener(object : WindowAdapter()
-        {
-            override fun windowClosed(e: WindowEvent?)
-            {
+        addWindowListener(object : WindowAdapter() {
+            override fun windowClosed(e: WindowEvent?) {
                 AppHome.frame.isEnabled = true
             }
         })
@@ -203,8 +192,7 @@ fun launchConfirmDialog(
     }
 }
 
-fun launchInfoDialog(title: String, description: String)
-{
+fun launchInfoDialog(title: String, description: String) {
     JDialog().apply {
         isAlwaysOnTop = true
         this.title = title
@@ -235,10 +223,8 @@ fun launchInfoDialog(title: String, description: String)
                 }
             }
         )
-        addWindowListener(object : WindowAdapter()
-        {
-            override fun windowClosed(e: WindowEvent?)
-            {
+        addWindowListener(object : WindowAdapter() {
+            override fun windowClosed(e: WindowEvent?) {
                 AppHome.frame.isEnabled = true
             }
         })

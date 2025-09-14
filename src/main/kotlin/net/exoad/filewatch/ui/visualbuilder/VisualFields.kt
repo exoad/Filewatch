@@ -86,10 +86,8 @@ annotation class VisualPath(
     val defaultValue: String,
     val hint: String = "",
     val type: Int = Type.BOTH
-)
-{
-    object Type
-    {
+) {
+    object Type {
         const val DIRECTORIES = 1
         const val FILES = 2
         const val BOTH = 3

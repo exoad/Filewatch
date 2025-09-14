@@ -1,21 +1,14 @@
 package net.exoad.filewatch.engine.rule
 
-import net.exoad.filewatch.engine.FileAction
 import kotlinx.serialization.Serializable
+import net.exoad.filewatch.engine.FileAction
 import net.exoad.filewatch.engine.actions.DeleteAction
 import net.exoad.filewatch.engine.actions.IgnoreAction
 import net.exoad.filewatch.engine.actions.MoveAction
-import net.exoad.filewatch.ui.visualbuilder.VisualBool
-import net.exoad.filewatch.ui.visualbuilder.VisualClass
-import net.exoad.filewatch.ui.visualbuilder.VisualDiscreteString
-import net.exoad.filewatch.ui.visualbuilder.VisualDouble
-import net.exoad.filewatch.ui.visualbuilder.VisualLong
-import net.exoad.filewatch.ui.visualbuilder.VisualPath
-import net.exoad.filewatch.ui.visualbuilder.VisualString
+import net.exoad.filewatch.ui.visualbuilder.*
 
 @Serializable
-sealed class Action
-{
+sealed class Action {
     @Serializable
     @VisualClass("Convert File", "Convert this file into another format.")
     data class Convert(
@@ -101,13 +94,11 @@ sealed class Action
     @VisualClass("Ignore", "Do nothing.")
     class Ignore() : Action()
 
-    fun toExecutableAction(): FileAction
-    {
-        return when(this)
-        {
-            is Move   -> MoveAction(this)
+    fun toExecutableAction(): FileAction {
+        return when (this) {
+            is Move -> MoveAction(this)
             is Delete -> DeleteAction
-            else      -> IgnoreAction
+            else -> IgnoreAction
         }
     }
 }

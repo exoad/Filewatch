@@ -14,13 +14,11 @@ import javax.swing.border.Border
 import javax.swing.border.EmptyBorder
 import javax.swing.filechooser.FileFilter
 
-fun color(rgb: Int): Color
-{
+fun color(rgb: Int): Color {
     return Color(rgb)
 }
 
-fun JComponent.repaintLater()
-{
+fun JComponent.repaintLater() {
     repaint(75L)
 }
 
@@ -42,8 +40,7 @@ fun JComponent.repaintLater()
 
 class UIBuildException(message: String) : RuntimeException(message)
 
-enum class Alignment(val componentValue: Float, val swingConstant: Int)
-{
+enum class Alignment(val componentValue: Float, val swingConstant: Int) {
     TOP(TOP_ALIGNMENT, SwingConstants.TOP),
     BOTTOM(BOTTOM_ALIGNMENT, SwingConstants.BOTTOM),
     CENTER(CENTER_ALIGNMENT, SwingConstants.CENTER),
@@ -51,14 +48,12 @@ enum class Alignment(val componentValue: Float, val swingConstant: Int)
     RIGHT(RIGHT_ALIGNMENT, SwingConstants.RIGHT)
 }
 
-enum class Axis(val componentValue: Int)
-{
+enum class Axis(val componentValue: Int) {
     VERTICAL(SwingConstants.VERTICAL),
     HORIZONTAL(SwingConstants.HORIZONTAL)
 }
 
-class Modifier
-{
+class Modifier {
     var padding: Border? = null
     var size: Dim? = null
     var tooltip: String? = null
@@ -74,10 +69,8 @@ class Modifier
     var alignmentY: Alignment? = null
 }
 
-fun Component.applyModifier(modifier: Modifier?)
-{
-    if(this is JComponent && modifier != null)
-    {
+fun Component.applyModifier(modifier: Modifier?) {
+    if (this is JComponent && modifier != null) {
         modifier.padding?.let { border = it }
         modifier.size?.let {
             size = it
@@ -97,20 +90,17 @@ fun Component.applyModifier(modifier: Modifier?)
     }
 }
 
-fun image(loc: String): ImageIcon
-{
+fun image(loc: String): ImageIcon {
     return ImageIcon(FileWatch.getResource(loc))
 }
 
-fun frame(title: String): JFrame
-{
+fun frame(title: String): JFrame {
     return JFrame(title).apply {
         iconImage = image("/logo.png").image
     }
 }
 
-fun nullPanel(modifier: Modifier? = null, color: Int): JComponent
-{
+fun nullPanel(modifier: Modifier? = null, color: Int): JComponent {
     return customPainter(modifier) { g, dim ->
         g.color = color(color)
         g.fillRect(0, 0, dim.width, dim.height)
@@ -119,8 +109,7 @@ fun nullPanel(modifier: Modifier? = null, color: Int): JComponent
 }
 
 fun <E> listBuilder(items: ListModel<E>, modifier: Modifier? = null, cellRenderer: ListCellRenderer<E>? = null):
-        JList<E>
-{
+        JList<E> {
     return JList<E>(items).apply {
         cellRenderer?.let { this.cellRenderer = it }
         applyModifier(modifier)
@@ -133,16 +122,14 @@ fun splitPane(
     axis: Axis = Axis.HORIZONTAL,
     dividerPosition: Int? = null,
     modifier: Modifier? = null,
-): JSplitPane
-{
+): JSplitPane {
     val scopeFirst = SingleChildScope()
     val scopeSecond = SingleChildScope()
     scopeFirst.first()
     scopeSecond.second()
     return JSplitPane(
-        when(axis)
-        {
-            Axis.VERTICAL   -> Axis.HORIZONTAL.componentValue
+        when (axis) {
+            Axis.VERTICAL -> Axis.HORIZONTAL.componentValue
             Axis.HORIZONTAL -> Axis.VERTICAL.componentValue
         },
         scopeFirst.child,
@@ -153,48 +140,39 @@ fun splitPane(
     }
 }
 
-fun hSpacer(): Component
-{
+fun hSpacer(): Component {
     return createHorizontalGlue()
 }
 
-fun vSpacer(): Component
-{
+fun vSpacer(): Component {
     return createVerticalGlue()
 }
 
-fun padNone(): EmptyBorder
-{
+fun padNone(): EmptyBorder {
     return BorderFactory.createEmptyBorder() as EmptyBorder
 }
 
-fun padSym(h: Int = 0, v: Int = 0): EmptyBorder
-{
+fun padSym(h: Int = 0, v: Int = 0): EmptyBorder {
     return BorderFactory.createEmptyBorder(v, h, v, h) as EmptyBorder
 }
 
-fun padAll(value: Int): EmptyBorder
-{
+fun padAll(value: Int): EmptyBorder {
     return BorderFactory.createEmptyBorder(value, value, value, value) as EmptyBorder
 }
 
-fun padOnly(top: Int = 0, bottom: Int = 0, left: Int = 0, right: Int = 0): EmptyBorder
-{
+fun padOnly(top: Int = 0, bottom: Int = 0, left: Int = 0, right: Int = 0): EmptyBorder {
     return BorderFactory.createEmptyBorder(top, left, bottom, right) as EmptyBorder
 }
 
-fun rowLayout(target: JComponent): BoxLayout
-{
+fun rowLayout(target: JComponent): BoxLayout {
     return BoxLayout(target, BoxLayout.X_AXIS)
 }
 
-fun colLayout(target: JComponent): BoxLayout
-{
+fun colLayout(target: JComponent): BoxLayout {
     return BoxLayout(target, BoxLayout.Y_AXIS)
 }
 
-fun svg(path: String, width: Int = 16, height: Int = 16): FlatSVGIcon
-{
+fun svg(path: String, width: Int = 16, height: Int = 16): FlatSVGIcon {
     return FlatSVGIcon(path, width, height)
 }
 
@@ -209,19 +187,16 @@ fun button(
     foregroundColor: Color? = null,
     tooltip: String? = null,
     onClick: ActionListener? = null,
-): JButton
-{
+): JButton {
     return JButton(text).apply {
-        if(outlined)
-        {
+        if (outlined) {
             background = Color(0, 0, 0, 0)
         }
         tooltip?.let { toolTipText = it }
         icon?.let { this.icon = it }
         backgroundColor?.let { this.background = backgroundColor }
         foregroundColor?.let { this.foreground = foregroundColor }
-        if(boldedLabel)
-        {
+        if (boldedLabel) {
             this.font = this.font.deriveFont(Font.BOLD)
         }
         onClick?.let { addActionListener(it) }
@@ -229,13 +204,11 @@ fun button(
     }
 }
 
-fun hStrut(space: Int): Component
-{
+fun hStrut(space: Int): Component {
     return createHorizontalStrut(space)
 }
 
-fun vStrut(space: Int): Component
-{
+fun vStrut(space: Int): Component {
     return createVerticalStrut(space)
 }
 
@@ -245,21 +218,18 @@ fun label(
     modifier: Modifier? = null,
     fontSize: Float = 16F,
     bolded: Boolean = false,
-): JLabel
-{
+): JLabel {
     return JLabel(text).apply {
         font = font.deriveFont(fontSize)
-        if(bolded)
-        {
+        if (bolded) {
             font = font.deriveFont(Font.BOLD)
         }
         hAlignment?.let {
-            horizontalAlignment = when(it)
-            {
-                Alignment.LEFT   -> SwingConstants.LEFT
-                Alignment.RIGHT  -> SwingConstants.RIGHT
+            horizontalAlignment = when (it) {
+                Alignment.LEFT -> SwingConstants.LEFT
+                Alignment.RIGHT -> SwingConstants.RIGHT
                 Alignment.CENTER -> SwingConstants.CENTER
-                else             -> throw UIBuildException(
+                else -> throw UIBuildException(
                     "Horizontal Alignment Value '$it' is not allowed to be supplied as 'horizontalAlignment' for a label."
                 )
             }
@@ -268,8 +238,7 @@ fun label(
     }
 }
 
-fun marquee(baseText: String, displayLength: Int, rate: Int = 14, modifier: Modifier? = null): Marquee
-{
+fun marquee(baseText: String, displayLength: Int, rate: Int = 14, modifier: Modifier? = null): Marquee {
     return Marquee(baseText, displayLength, rate).apply {
         applyModifier(modifier)
     }
@@ -279,39 +248,32 @@ class Marquee(
     baseText: String,
     private val displayLength: Int,
     rate: Int,
-) : JPanel(), ActionListener
-{
+) : JPanel(), ActionListener {
     private val timer: Timer = Timer(1000 / rate, this)
     private val label: JLabel = JLabel()
     private val paddedText: String
     private var index: Int = 0
 
-    init
-    {
+    init {
         val padding = " ".repeat(displayLength)
         paddedText = padding + baseText + padding
         label.text = paddedText.substring(0, displayLength)
         add(label)
     }
 
-    fun start()
-    {
-        if(!timer.isRunning)
-        {
+    fun start() {
+        if (!timer.isRunning) {
             timer.start()
         }
     }
 
-    fun stop()
-    {
-        if(timer.isRunning)
-        {
+    fun stop() {
+        if (timer.isRunning) {
             timer.stop()
         }
     }
 
-    override fun actionPerformed(e: ActionEvent?)
-    {
+    override fun actionPerformed(e: ActionEvent?) {
         index = (index + 1) % (paddedText.length - displayLength + 1)
         label.text = paddedText.substring(index, index + displayLength)
     }
@@ -324,8 +286,7 @@ fun scaffold(
     south: (SingleChildScope.() -> Unit)? = null,
     west: (SingleChildScope.() -> Unit)? = null,
     east: (SingleChildScope.() -> Unit)? = null,
-): JPanel
-{
+): JPanel {
     return JPanel(BorderLayout()).apply {
         north?.let {
             val scope = SingleChildScope()
@@ -359,12 +320,9 @@ fun scaffold(
 fun customPainter(
     modifier: Modifier? = null,
     painter: (Graphics2D, Dim) -> Unit,
-): JComponent
-{
-    return object : JComponent()
-    {
-        override fun paintComponent(g: Graphics?)
-        {
+): JComponent {
+    return object : JComponent() {
+        override fun paintComponent(g: Graphics?) {
             super.paintComponent(g)
             val g2d = g as Graphics2D
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
@@ -380,8 +338,7 @@ fun iconButton(
     modifier: Modifier? = null,
     tooltip: String? = null,
     onClick: ActionListener? = null,
-): JButton
-{
+): JButton {
     return JButton(icon).apply {
         tooltip?.let { toolTipText = it }
         onClick?.let { addActionListener(it) }
@@ -394,8 +351,7 @@ fun textPane(
     modifier: Modifier? = null,
     type: String = "text/html",
     editable: Boolean = true,
-): JTextPane
-{
+): JTextPane {
     return JTextPane().apply {
         text = initialText
         this.contentType = type
@@ -409,8 +365,7 @@ fun editorPane(
     modifier: Modifier? = null,
     contentType: String = "text/html",
     editable: Boolean = true,
-): JEditorPane
-{
+): JEditorPane {
     return JEditorPane().apply {
         text = initialText
         this.contentType = contentType
@@ -424,8 +379,7 @@ fun textArea(
     rows: Int = 5,
     columns: Int = 20,
     modifier: Modifier? = null,
-): JTextArea
-{
+): JTextArea {
     return JTextArea(initialText, rows, columns).apply {
         applyModifier(modifier)
     }
@@ -438,21 +392,16 @@ data class ToggleButtonState(
     val foregroundColor: Color? = null,
     val backgroundColor: Color? = null,
     val boldedLabel: Boolean = false,
-) : InternalState<JToggleButton>
-{
-    override fun applyTo(component: JToggleButton)
-    {
+) : InternalState<JToggleButton> {
+    override fun applyTo(component: JToggleButton) {
         icon?.let { component.icon = it }
         label?.let { component.text = label }
         tooltip?.let { component.toolTipText = it }
         foregroundColor?.let { component.foreground = foregroundColor }
         backgroundColor?.let { component.background = backgroundColor }
-        if(boldedLabel)
-        {
+        if (boldedLabel) {
             component.font = component.font.deriveFont(Font.BOLD)
-        }
-        else if(component.font.style == Font.BOLD)
-        {
+        } else if (component.font.style == Font.BOLD) {
             component.font = component.font.deriveFont(Font.PLAIN)
         }
     }
@@ -462,8 +411,7 @@ fun toggleButton(
     modifier: Modifier? = null,
     selected: Boolean = false,
     onChange: (Boolean) -> ToggleButtonState,
-): JToggleButton
-{
+): JToggleButton {
     val initialState = onChange(selected)
     return JToggleButton().apply {
         initialState.applyTo(this)
@@ -481,12 +429,10 @@ fun progressBar(
     stringPainted: Boolean = false,
     string: String? = null,
     modifier: Modifier? = null,
-): JProgressBar
-{
+): JProgressBar {
     return JProgressBar(min, max).apply {
         isStringPainted = stringPainted
-        if(string == null && isStringPainted)
-        {
+        if (string == null && isStringPainted) {
             Logger.I.warning("Null string; enabled string painting. Oversight?")
         }
         string?.let { this.string = it }
@@ -495,8 +441,7 @@ fun progressBar(
     }
 }
 
-fun icon(icon: Icon, modifier: Modifier? = null): JLabel
-{
+fun icon(icon: Icon, modifier: Modifier? = null): JLabel {
     return JLabel(icon, JLabel.CENTER).apply {
         applyModifier(modifier)
     }
@@ -506,8 +451,7 @@ fun textField(
     initialText: String = "",
     modifier: Modifier? = null,
     onChange: ((String) -> Unit)? = null,
-): JTextField
-{
+): JTextField {
     return JTextField().apply {
         text = initialText
         onChange?.let { it -> addCaretListener { it(text) } }
@@ -518,8 +462,7 @@ fun textField(
 fun vDivider(
     color: Color = UIManager.getColor("Separator.foreground"),
     thickness: Float = 2F,
-): JComponent
-{
+): JComponent {
     return customPainter(modifier = Modifier().apply {
         size = dim(Int.MAX_VALUE, 6 + thickness.toInt())
         maxSize = size
@@ -537,8 +480,7 @@ fun vDivider(
 fun hDivider(
     color: Color = UIManager.getColor("Separator.foreground"),
     thickness: Float = 2F,
-): JComponent
-{
+): JComponent {
     return customPainter(modifier = Modifier().apply {
         size = dim(Int.MAX_VALUE, 6 + thickness.toInt())
         maxSize = size
@@ -556,8 +498,7 @@ fun hDivider(
 fun viewport(
     modifier: Modifier? = null,
     content: SingleChildScope.() -> Unit,
-): JViewport
-{
+): JViewport {
     val scope = SingleChildScope()
     scope.content()
     return JViewport().apply {
@@ -566,8 +507,7 @@ fun viewport(
     }
 }
 
-enum class FilePickerMode
-{
+enum class FilePickerMode {
     FILES,
     DIRECTORIES,
     BOTH
@@ -579,17 +519,15 @@ fun filePicker(
     mode: FilePickerMode = FilePickerMode.FILES,
     modifier: Modifier? = null,
     fileFilter: FileFilter? = null,
-): JFileChooser
-{
+): JFileChooser {
     return JFileChooser().apply {
         initialStart?.let { currentDirectory = initialStart }
         isMultiSelectionEnabled = allowMultiple
         this.fileFilter = fileFilter
-        fileSelectionMode = when(mode)
-        {
-            FilePickerMode.FILES       -> JFileChooser.FILES_ONLY
+        fileSelectionMode = when (mode) {
+            FilePickerMode.FILES -> JFileChooser.FILES_ONLY
             FilePickerMode.DIRECTORIES -> JFileChooser.DIRECTORIES_ONLY
-            FilePickerMode.BOTH        -> JFileChooser.FILES_AND_DIRECTORIES
+            FilePickerMode.BOTH -> JFileChooser.FILES_AND_DIRECTORIES
         }
         applyModifier(modifier)
     }
@@ -601,11 +539,9 @@ fun <T> comboBox(
     modifier: Modifier? = null,
     backgroundColor: Color? = null,
     onChange: ((T, JComboBox<T>) -> Unit)? = null,
-): JComboBox<T>
-{
+): JComboBox<T> {
     return JComboBox(values).apply {
-        if(backgroundColor != null)
-        {
+        if (backgroundColor != null) {
             background = backgroundColor
         }
         onChange?.let { it ->
@@ -624,12 +560,11 @@ fun spinner(
     allowNegative: Boolean,
     stepSize: Long = 1,
     onChange: ((Long) -> Unit)? = null,
-): JSpinner
-{
+): JSpinner {
     return JSpinner(
         SpinnerNumberModel(
             initialValue,
-            if(allowNegative) Long.MIN_VALUE else 0,
+            if (allowNegative) Long.MIN_VALUE else 0,
             Long.MAX_VALUE,
             stepSize
         )
@@ -650,8 +585,7 @@ fun spinner(
     discreteValues: Array<Double>,
     mantissaLength: Int = 2,
     onChange: ((Double) -> Unit)? = null,
-): JSpinner
-{
+): JSpinner {
     return JSpinner(SpinnerListModel(discreteValues)).apply {
         value = initialValue
         onChange?.let { it ->
@@ -669,8 +603,7 @@ fun spinner(
     initialValue: Long,
     discreteValues: Array<Long>,
     onChange: ((Long) -> Unit)? = null,
-): JSpinner
-{
+): JSpinner {
     return JSpinner(SpinnerListModel(discreteValues)).apply {
         value = initialValue
         onChange?.let { it ->
@@ -689,12 +622,11 @@ fun spinner(
     stepSize: Double = 1.0,
     mantissaLength: Int = 2,
     onChange: ((Double) -> Unit)? = null,
-): JSpinner
-{
+): JSpinner {
     return JSpinner(
         SpinnerNumberModel(
             initialValue,
-            if(allowNegative) Double.MIN_VALUE else .0,
+            if (allowNegative) Double.MIN_VALUE else .0,
             Double.MAX_VALUE,
             stepSize
         )
@@ -714,8 +646,7 @@ fun checkbox(
     selected: Boolean = false,
     modifier: Modifier? = null,
     onChange: ((Boolean) -> Unit)? = null,
-): JCheckBox
-{
+): JCheckBox {
     return JCheckBox().apply {
         isSelected = selected
         onChange?.let { it ->
@@ -730,8 +661,7 @@ fun checkbox(
 fun scrollPane(
     modifier: Modifier? = null,
     content: SingleChildScope.() -> Unit,
-): JScrollPane
-{
+): JScrollPane {
     val scope = SingleChildScope()
     scope.content()
     return JScrollPane(scope.child).apply {
@@ -744,24 +674,19 @@ fun col(
     modifier: Modifier? = null,
     spacing: Int = 0,
     content: MultiChildrenScope.() -> Unit,
-): JPanel
-{
+): JPanel {
     val scope = MultiChildrenScope()
     scope.content()
     return JPanel().apply {
         this.layout = colLayout(this)
-        if(spacing > 0)
-        {
+        if (spacing > 0) {
             scope.children.forEachIndexed { index, component ->
                 add(component)
-                if(index < scope.children.size - 1)
-                {
+                if (index < scope.children.size - 1) {
                     add(createVerticalStrut(spacing))
                 }
             }
-        }
-        else
-        {
+        } else {
             scope.children.forEach { add(it) }
         }
         applyModifier(modifier)
@@ -772,57 +697,46 @@ fun row(
     modifier: Modifier? = null,
     spacing: Int = 0,
     content: MultiChildrenScope.() -> Unit,
-): JPanel
-{
+): JPanel {
     val scope = MultiChildrenScope()
     scope.content()
     return JPanel().apply {
         this.layout = rowLayout(this)
-        if(spacing > 0)
-        {
+        if (spacing > 0) {
             scope.children.forEachIndexed { index, component ->
                 add(component)
-                if(index < scope.children.size - 1)
-                {
+                if (index < scope.children.size - 1) {
                     add(createHorizontalStrut(spacing))
                 }
             }
-        }
-        else
-        {
+        } else {
             scope.children.forEach { add(it) }
         }
         applyModifier(modifier)
     }
 }
 
-class SingleChildScope
-{
+class SingleChildScope {
     private var _child: Component? = null
     val child: Component? get() = _child
 
-    operator fun Component.unaryPlus()
-    {
+    operator fun Component.unaryPlus() {
         _child = this
     }
 
-    fun setChild(component: Component)
-    {
+    fun setChild(component: Component) {
         _child = component
     }
 }
 
-class MultiChildrenScope
-{
+class MultiChildrenScope {
     val children = mutableListOf<Component>()
 
-    operator fun Component.unaryPlus()
-    {
+    operator fun Component.unaryPlus() {
         children.add(this)
     }
 
-    operator fun List<Component>.unaryPlus()
-    {
+    operator fun List<Component>.unaryPlus() {
         children.addAll(this)
     }
 }
@@ -831,8 +745,7 @@ fun panel(
     modifier: Modifier? = null,
     layout: LayoutManager? = null,
     content: SingleChildScope.() -> Unit = {},
-): JPanel
-{
+): JPanel {
     val scope = SingleChildScope()
     scope.content()
     return JPanel().apply {

@@ -9,24 +9,16 @@ import net.exoad.filewatch.utils.Chronos
 import net.exoad.filewatch.utils.Logger
 import net.exoad.filewatch.utils.Theme
 import java.awt.Component
-import javax.swing.AbstractCellEditor
-import javax.swing.BorderFactory
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JTable
-import javax.swing.UIManager
+import javax.swing.*
 import javax.swing.table.AbstractTableModel
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
-object JobsView
-{
-    class JobCellRendererEditor : AbstractCellEditor(), TableCellRenderer, TableCellEditor
-    {
+object JobsView {
+    class JobCellRendererEditor : AbstractCellEditor(), TableCellRenderer, TableCellEditor {
         private var currentJob: Job? = null
 
-        private fun buildPanel(job: Job): JPanel
-        {
+        private fun buildPanel(job: Job): JPanel {
             return row(Modifier().apply {
                 border = BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(UIManager.getColor("Separator.foreground"), 1, true),
@@ -77,13 +69,11 @@ object JobsView
                             alignmentX = Alignment.RIGHT
                         }
                     ) {
-                        fun delete()
-                        {
+                        fun delete() {
                             AutomationController.removeJob(job)
                             Job.notifyObservers(JobCreationEventType.DELETE)
                         }
-                        if(UserPreferences.getBool("jobsview.show_deletion_dialog"))
-                        {
+                        if (UserPreferences.getBool("jobsview.show_deletion_dialog")) {
                             launchConfirmDialog(
                                 "Are you sure?",
                                 "Confirm deletion of this job?",
@@ -94,9 +84,7 @@ object JobsView
                                 onCancel = {},
                                 onConfirm = ::delete
                             )
-                        }
-                        else
-                        {
+                        } else {
                             delete()
                         }
                     }
@@ -111,8 +99,7 @@ object JobsView
             hasFocus: Boolean,
             row: Int,
             column: Int,
-        ): Component
-        {
+        ): Component {
             return buildPanel(value as? Job ?: return JLabel("Invalid Job"))
         }
 
@@ -122,26 +109,22 @@ object JobsView
             isSelected: Boolean,
             row: Int,
             column: Int,
-        ): Component
-        {
+        ): Component {
             return buildPanel((value as? Job)!!)
         }
 
-        override fun getCellEditorValue(): Any?
-        {
+        override fun getCellEditorValue(): Any? {
             return currentJob
         }
     }
 
-    init
-    {
+    init {
         Job.observe { eventType ->
             pump(html { span("color" to Theme.HTML_YELLOW) { text("Refreshing Jobs Listings") } })
-            val last = if(Job.hashInstances.isNotEmpty()) Job.hashInstances.size - 1 else 0
+            val last = if (Job.hashInstances.isNotEmpty()) Job.hashInstances.size - 1 else 0
             Logger.I.info("JobsView EvenType: [$eventType] at $last")
             (table.model as AbstractTableModel).let {
-                when(eventType)
-                {
+                when (eventType) {
                     JobCreationEventType.ADD -> it::fireTableRowsInserted
                     JobCreationEventType.DELETE -> it::fireTableRowsDeleted
                     JobCreationEventType.UPDATE -> it::fireTableRowsUpdated
@@ -150,30 +133,24 @@ object JobsView
         }
     }
 
-    val table = JTable(object : AbstractTableModel()
-    {
-        override fun getRowCount(): Int
-        {
+    val table = JTable(object : AbstractTableModel() {
+        override fun getRowCount(): Int {
             return Job.hashInstances.size
         }
 
-        override fun getColumnCount(): Int
-        {
+        override fun getColumnCount(): Int {
             return 1
         }
 
-        override fun getColumnName(col: Int): String
-        {
+        override fun getColumnName(col: Int): String {
             return "Jobs"
         }
 
-        override fun getValueAt(row: Int, col: Int): Job
-        {
+        override fun getValueAt(row: Int, col: Int): Job {
             return Job.indexedInstances[row]!!
         }
 
-        override fun isCellEditable(row: Int, col: Int): Boolean
-        {
+        override fun isCellEditable(row: Int, col: Int): Boolean {
             return true
         }
     }).apply {

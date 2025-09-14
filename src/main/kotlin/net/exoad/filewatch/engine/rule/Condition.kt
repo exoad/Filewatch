@@ -8,8 +8,7 @@ import net.exoad.filewatch.ui.visualbuilder.VisualString
 import java.nio.file.Path
 
 @Serializable
-sealed class Condition
-{
+sealed class Condition {
     @Serializable
     @VisualClass("File Greater Than Size", "If the file is larger than the given size, trigger the action.")
     data class FileSizeGreaterThan(
@@ -53,16 +52,14 @@ sealed class Condition
     @VisualClass("Ignore", "Do nothing.")
     class Ignore() : Condition()
 
-    fun isMet(filePath: Path): Boolean
-    {
-        return when(this)
-        {
+    fun isMet(filePath: Path): Boolean {
+        return when (this) {
             is FileSizeGreaterThan -> filePath.toFile().length() > sizeBytes
-            is FileSizeLessThan    -> filePath.toFile().length() < sizeBytes
-            is FileNameMatches     -> filePath.fileName.toString().matches(Regex(regex))
-            is FileNameContains    -> filePath.fileName.toString().contains(substring, ignoreCase)
-            is FileNameEndsWith    -> filePath.fileName.toString().endsWith(suffix, ignoreCase)
-            else                   -> false
+            is FileSizeLessThan -> filePath.toFile().length() < sizeBytes
+            is FileNameMatches -> filePath.fileName.toString().matches(Regex(regex))
+            is FileNameContains -> filePath.fileName.toString().contains(substring, ignoreCase)
+            is FileNameEndsWith -> filePath.fileName.toString().endsWith(suffix, ignoreCase)
+            else -> false
         }
     }
 }
