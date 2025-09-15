@@ -12,6 +12,7 @@ import java.io.IOException
 import java.nio.file.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.isDirectory
 
 @VisualClass("Watch Folder", "Supplies a path of a folder to watch for changes.")
@@ -23,7 +24,8 @@ class WatchFolderRequest(
 object FileSystemMonitor {
     private lateinit var service: WatchService
     private val keys: MutableMap<WatchKey, Path> = mutableMapOf()
-    private val listeners: MutableMap<Path, (newFile: Path) -> Unit> = mutableMapOf()
+    private val createListeners: MutableMap<Path, (newFile: Path) -> Unit> = mutableMapOf()
+    private val deleteListeners: MutableMap<Path, (newFile: Path) -> Unit> = mutableMapOf() // TODO: map to delete event
 
     /**
      * Global listener used for watching when new folders are scheduled to be watched. Use normal listeners to listen
@@ -58,29 +60,29 @@ object FileSystemMonitor {
     }
 
     fun subscribe(folder: Path, listener: (newFile: Path) -> Unit) {
-        listeners[folder] = listener
+        createListeners[folder] = listener
     }
 
     fun subscribeIfNot(folder: Path, listener: (newFile: Path) -> Unit) {
-        listeners.putIfAbsent(folder) { listener }
+        createListeners.putIfAbsent(folder) { listener }
     }
 
     fun isSubscribed(folder: Path): Boolean {
-        return listeners[folder] != null
+        return createListeners[folder] != null
     }
 
     /**
      * Removes the listener for [folder] if applicable.
      */
     fun unsubscribe(folder: Path) {
-        listeners.remove(folder)
+        createListeners.remove(folder)
     }
 
     /**
      * The watch key and also any potential listeners are removed
      */
     fun stopWatching(folder: Path) {
-        listeners.remove(folder)
+        createListeners.remove(folder)
         val watchKey = keys.filter { it.value == folder }.keys.firstOrNull()
         watchKey?.cancel()
         keys.remove(watchKey)
@@ -148,8 +150,14 @@ object FileSystemMonitor {
                             val ev = event as WatchEvent<Path>
                             val name = ev.context()
                             val child = dir?.resolve(name)
-                            if (kind == StandardWatchEventKinds.ENTRY_CREATE && child != null) {
-                                listeners[dir]?.invoke(child)
+                            if(child != null) {
+                                if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+                                    createListeners[dir]?.invoke(child)
+                                    Logger.I.info("[ENTRY_CREATE] event ${if (createListeners[dir] == null) "ignored" else "consumed"}! (${child.absolutePathString()})")
+                                }
+                                if(kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                                    // TODO: Map to delete event
+                                }
                             }
                         }
                         val valid = k.reset()

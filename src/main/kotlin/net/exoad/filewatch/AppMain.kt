@@ -1,6 +1,14 @@
 package net.exoad.filewatch
 
+import com.formdev.flatlaf.intellijthemes.FlatCarbonIJTheme
+import com.formdev.flatlaf.intellijthemes.FlatMaterialDesignDarkIJTheme
 import com.formdev.flatlaf.intellijthemes.FlatSpacegrayIJTheme
+import com.formdev.flatlaf.intellijthemes.FlatXcodeDarkIJTheme
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMTArcDarkIJTheme
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMTGitHubDarkIJTheme
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMTMaterialDarkerIJTheme
+import com.formdev.flatlaf.themes.FlatMacDarkLaf
+import com.formdev.flatlaf.themes.FlatMacLightLaf
 import net.exoad.filewatch.app.components.AppHome
 import net.exoad.filewatch.app.components.launchErrorDialog
 import net.exoad.filewatch.app.components.pump
@@ -39,7 +47,7 @@ fun main(args: Array<String>) {
     Logger.I.info("Starting AutoFile")
     DataStore.initialize()
     UserPreferences.initialize()
-    UIManager.setLookAndFeel(FlatSpacegrayIJTheme())
+    UIManager.setLookAndFeel(FlatMacDarkLaf())
     Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
         launchErrorDialog(
             ErrorContext(

@@ -4,7 +4,9 @@ import net.exoad.filewatch.app.ephemeral.UserPreferences
 import net.exoad.filewatch.engine.AutomationController
 import net.exoad.filewatch.engine.Job
 import net.exoad.filewatch.engine.JobCreationEventType
+import net.exoad.filewatch.engine.rule.Rule
 import net.exoad.filewatch.ui.*
+import net.exoad.filewatch.ui.visualbuilder.VisualBuilder
 import net.exoad.filewatch.utils.Chronos
 import net.exoad.filewatch.utils.Logger
 import net.exoad.filewatch.utils.Theme
@@ -60,6 +62,14 @@ object JobsView {
                         icon = svg("icons/add.svg"),
                         modifier = Modifier().apply {
                             alignmentX = Alignment.RIGHT
+                        },
+                        onClick = {
+                            val builder = VisualBuilder.build(Rule::class).apply {
+                                onBuild = { rule ->
+                                    AutomationController.registerRuleToJob(currentJob!!, rule)
+                                }
+                            }
+                            builder.showNow()
                         }
                     )
                     +button(
